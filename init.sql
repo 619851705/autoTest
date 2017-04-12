@@ -136,6 +136,16 @@ interface_id int
 alter table at_parameter add constraint at_parameter_fk_interface_id foreign key(interface_id) REFERENCES at_interface_info(interface_id);
 
 
+create table at_complex_parameter(
+id int auto_increment primary key,
+self_parameter_id int,
+next_complex_parameter_id int
+);
+alter table at_complex_parameter add constraint at_complex_parameter_fk_self_parameter_id foreign key(self_parameter_id) references at_parameter(parameter_id);
+alter table at_complex_parameter add constraint at_complex_parameter_fk_next_complex_parameter_id foreign key(next_complex_parameter_id) references at_complex_parameter(id);
+
+
+
 create table at_message(
 message_id int auto_increment primary key,
 message_name varchar(255),

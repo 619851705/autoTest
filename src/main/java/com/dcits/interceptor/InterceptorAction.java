@@ -92,6 +92,7 @@ public class InterceptorAction extends ActionSupport{
 		
 		jsonMap.put("returnCode", ReturnCodeConsts.OP_NOTFOUND_CODE);
 		jsonMap.put("msg", "未定义的操作接口");
+		
 		logger.info("未定义的操作接口");
 		
 		return SUCCESS;

@@ -28,5 +28,13 @@
       	<many-to-one name="interfaceInfo" class="com.dcits.business.message.bean.InterfaceInfo" lazy="proxy">
             <column name="interface_id" />
         </many-to-one>
+        
+        <set name="complexParameters" cascade="all" lazy="true" inverse="true">
+        	<key>
+        		<column name="self_parameter_id"></column>
+        	</key>
+        	<one-to-many class="com.dcits.business.message.bean.ComplexParameter" />
+        </set>
+        
     </class>
 </hibernate-mapping>

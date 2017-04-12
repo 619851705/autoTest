@@ -1,4 +1,4 @@
-package com.dcits.util;
+package com.dcits.util.message;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,11 +31,12 @@ public class JsonUtil {
     
     /**
      * 根据输入的json串获取指定的节点信息<br>
-     * mode=0,返回包含所有节点的类型的list<br>
      * mode=1,返回包含所有节点名称的list<br>
-     * mode=2,返回key为节点名称,value为节点值的map<br>
+     * mode=0,返回包含所有节点的类型的list<br>
      * mode=4，返回包含所有节点的路径的list<br>
-     * mode=3,返回包含所有信息的map<br>
+     * mode=2,返回key为节点名称,value为节点值的map<br>
+     * <br>
+     * mode=3,返回包含所有信息的Array<br>
      * @param jsonStr
      * @param mode
      * @return
@@ -50,6 +51,9 @@ public class JsonUtil {
     	List<String> jsonTreePath = new ArrayList<String>();
     	
 		Map maps = mapper.readValue(jsonStr, Map.class);
+		
+		System.out.println(maps.toString());
+		
 		viewJsonTree(maps, jsonTreeMap, jsonTreeList, jsonTreeType, jsonTreePath, "TopRoot");
 		
 		if (mode == 1) {
@@ -61,7 +65,7 @@ public class JsonUtil {
 		} else if (mode == 4) {
 			return jsonTreePath;
 		} else {
-			Object[] a = { jsonTreeList,jsonTreeType,jsonTreePath,jsonTreeMap };
+			Object[] a = {jsonTreeList, jsonTreeType, jsonTreePath, jsonTreeMap};
 			return a;
 		}
         

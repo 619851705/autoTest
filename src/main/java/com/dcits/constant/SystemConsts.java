@@ -73,6 +73,11 @@ public class SystemConsts {
 	 */
 	public static final String RESULT_NON_EXISTENT_OP = "opnotfound"; 
 	
+	public static final Integer PARAMETER_ARRAY_IN_ARRAY_ID = 2;
+	
+	public static final Integer PARAMETER_MAP_IN_ARRAY_ID = 3;
+	
+	public static final Integer PARAMETER_OBJECT_ID = 1;
 	
 
 }

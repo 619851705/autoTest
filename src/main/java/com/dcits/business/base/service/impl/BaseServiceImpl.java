@@ -23,7 +23,7 @@ public class BaseServiceImpl<T> implements BaseService<T>{
 	
 	@Override
 	public Integer save(T entity) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub		
 		return baseDao.save(entity);
 	}
 

@@ -8,9 +8,11 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import com.dcits.business.message.action.MessageAction;
 import com.dcits.business.system.bean.GlobalSetting;
 import com.dcits.business.system.service.GlobalSettingService;
 import com.dcits.business.user.bean.OperationInterface;
@@ -25,14 +27,19 @@ import com.dcits.business.user.service.OperationInterfaceService;
 
 public class InitWebListener implements ServletContextListener {
 	
+	private static final Logger LOGGER = Logger.getLogger(InitWebListener.class.getName());
+	
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {
 		// TODO Auto-generated method stub
+		LOGGER.info("web容器已销毁!");
 		
 	}
 	
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
+		
+		LOGGER.info("正在启动Web容器...");
 		
 		ServletContext context = arg0.getServletContext();
 		//取得appliction上下文
@@ -42,6 +49,7 @@ public class InitWebListener implements ServletContextListener {
 		GlobalSettingService settingService = (GlobalSettingService) ctx.getBean("globalSettingService");
 		
 		//获取当前系统的所有接口信息  
+		LOGGER.info("获取当前系统的所有接口信息!");
 		List<OperationInterface> ops = opService.findAll();
 		for (OperationInterface op:ops) {
 			op.setParentOpId();
@@ -50,6 +58,7 @@ public class InitWebListener implements ServletContextListener {
 		context.setAttribute("ops", ops);
 		
 		//获取网站全局设置信息
+		LOGGER.info("获取网站全局设置信息!");
 		List<GlobalSetting> settings = settingService.findAll();
 		Map<String,GlobalSetting> globalSettingMap = new HashMap<String,GlobalSetting>();
 		
@@ -57,7 +66,9 @@ public class InitWebListener implements ServletContextListener {
 			globalSettingMap.put(g.getSettingName(), g);
 		}
 		//放置到全局context中
-		context.setAttribute("settingMap", globalSettingMap);				
+		context.setAttribute("settingMap", globalSettingMap);	
+		
+		LOGGER.info("Web容器初始化完成!");
 	}
 	
 }

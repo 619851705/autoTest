@@ -63,7 +63,11 @@ public class StrutsUtils {
 	
 	/**
 	 * 获取前端Datatables发送的参数
-	 * @return
+	 * @return Map&lt;String,Object&gt;
+	 * <br>orderDataName  需要排序的那一列属性名称
+	 * <br>orderType  排序方式 asc或者desc
+	 * <br>searchValue 全局搜索条件
+	 * <br>dataParams List&lt;String&gt; 当前所有的展示字段
 	 */
 	@SuppressWarnings("unchecked")
 	public static Map<String,Object> getDTParameters() {

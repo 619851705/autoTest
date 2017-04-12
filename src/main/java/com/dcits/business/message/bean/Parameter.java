@@ -1,6 +1,8 @@
 package com.dcits.business.message.bean;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.struts2.json.annotations.JSON;
 
@@ -56,6 +58,8 @@ public class Parameter implements Serializable {
 	 * 所属接口
 	 */
 	private InterfaceInfo interfaceInfo;
+	
+	private Set<ComplexParameter> complexParameters = new HashSet<ComplexParameter>();
 
      
     // Constructors
@@ -64,6 +68,11 @@ public class Parameter implements Serializable {
     public Parameter() {
     }
 
+    public Parameter(Integer parameterId, String type) {
+    	this.parameterId = parameterId;
+    	this.type = type;
+    };
+    
 	/** minimal constructor */
     public Parameter(String parameterIdentify) {
         this.parameterIdentify = parameterIdentify;
@@ -88,7 +97,15 @@ public class Parameter implements Serializable {
         return this.parameterId;
     }
     
-    public String getPath() {
+    public Set<ComplexParameter> getComplexParameters() {
+		return complexParameters;
+	}
+
+	public void setComplexParameters(Set<ComplexParameter> complexParameters) {
+		this.complexParameters = complexParameters;
+	}
+
+	public String getPath() {
 		return path;
 	}
 
@@ -146,7 +163,7 @@ public class Parameter implements Serializable {
 		return "Parameter [parameterId=" + parameterId + ", parameterIdentify="
 				+ parameterIdentify + ", parameterName=" + parameterName
 				+ ", defaultValue=" + defaultValue + ", type=" + type
-				+ ", interfaceInfo=" + interfaceInfo + "]";
+				+ "]";
 	}
     
    

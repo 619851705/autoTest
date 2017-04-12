@@ -14,7 +14,7 @@ import com.dcits.business.message.bean.InterfaceInfo;
 import com.dcits.business.message.bean.Parameter;
 import com.dcits.business.message.service.ParameterService;
 import com.dcits.constant.ReturnCodeConsts;
-import com.dcits.util.JsonUtil;
+import com.dcits.util.message.JsonUtil;
 
 /**
  * 接口自动化

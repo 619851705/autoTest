@@ -61,7 +61,7 @@ public interface BaseService<T> {
 	 * @param pageSize 每页显示数据量
 	 * @param orderDataName 当前需要排序的列名称
 	 * @param orderType 排序方式
-	 * @param searchValue 全局搜索天剑
+	 * @param searchValue 全局搜索条件
 	 * @param dataParams 当前展示的所有字段名
 	 * @return 符合分页条件的分页模型实例
 	 */

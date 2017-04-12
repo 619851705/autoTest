@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.dcits.util.message.JsonUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -133,7 +134,7 @@ public class PracticalUtils {
 		 String regex = "(<[a-zA-Z0-9_.]*>)";
 		 Pattern pattern = Pattern.compile(regex);
 		 List<String> regStrs = new ArrayList<String>();
-		 Matcher matcher = pattern.matcher(sqlStr);//匹配类
+		 Matcher matcher = pattern.matcher(sqlStr);
 		 
 		 while (matcher.find()) {
 			regStrs.add(matcher.group());

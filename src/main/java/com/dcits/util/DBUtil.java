@@ -48,12 +48,12 @@ public class DBUtil {
 	   		
 	   		if (dbType.equals("oracle")) {
 				Class.forName("oracle.jdbc.driver.OracleDriver");
-				con = DriverManager.getConnection("jdbc:oracle:thin:@"+dbUrl+":"+dbName, dbUserName, dbPasswd);
+				con = DriverManager.getConnection("jdbc:oracle:thin:@" + dbUrl + ":" + dbName, dbUserName, dbPasswd);
 			}
 				 
 			if (dbType.equals("mysql")) {
 				Class.forName("com.mysql.jdbc.Driver");
-				con = DriverManager.getConnection("jdbc:mysql://"+dbUrl+"/"+dbName+"?characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true", dbUserName, dbPasswd);
+				con = DriverManager.getConnection("jdbc:mysql://" + dbUrl + "/" + dbName + "?characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true", dbUserName, dbPasswd);
 			} 
 			
 		} catch (ClassNotFoundException e) {
@@ -61,7 +61,7 @@ public class DBUtil {
 			throw new ClassNotFoundException();
 			
 		} catch (SQLException e1) {
-			LOGGER.info("创建数据库连接出错!", e1);
+			LOGGER.error("创建数据库连接出错!", e1);
 			throw new SQLException();
 		}
 				
@@ -84,7 +84,7 @@ public class DBUtil {
 					con.close();
 				} catch (SQLException e) {				
 					e.printStackTrace();
-					LOGGER.error("关闭查询数据库异常",e);
+					LOGGER.error("关闭查询数据库异常", e);
 					throw new SQLException();
 			}
 		}
@@ -112,7 +112,7 @@ public class DBUtil {
     		}   
     		
 		} catch (SQLException e) {			
-			LOGGER.error("查询语句执行失败["+sqlStr+"]", e);
+			LOGGER.error("查询语句执行失败[" + sqlStr + "]", e);
 			e.printStackTrace();
 			throw new SQLException();
 			

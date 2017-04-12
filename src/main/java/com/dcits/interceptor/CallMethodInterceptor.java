@@ -45,7 +45,7 @@ public class CallMethodInterceptor extends ActionSupport implements Interceptor 
 		//当前所有接口信息
 		List<OperationInterface> ops = (List<OperationInterface>) StrutsUtils.getApplicationMap().get("ops");
 		
-		logger.info("["+timeTag+"]"+"开始调用接口:"+actionName+",进行权限验证!");
+		logger.info("[" + timeTag + "]" + "开始调用接口:" + actionName + ",进行权限验证!");
 		
 		//判断该接口是否为通用接口(不存在于系统接口列表中即认为是通用接口,不需要任何验证就可以调用)
 		int isCommon = 0;
@@ -61,7 +61,7 @@ public class CallMethodInterceptor extends ActionSupport implements Interceptor 
 		}
 		
 		if (isCommon==0) {
-			logger.info("["+timeTag+"]"+"接口"+actionName+"未在接口列表定义,为通用接口,请求放行!");
+			logger.info("[" + timeTag + "]" + "接口" + actionName + "未在接口列表定义,为通用接口,请求放行!");
 			return arg0.invoke();
 		}
 		
@@ -71,14 +71,14 @@ public class CallMethodInterceptor extends ActionSupport implements Interceptor 
 		User user = (User) StrutsUtils.getSessionMap().get("user");
 		
 		if (user==null) {
-			logger.info("["+timeTag+"]"+"用户未登录,调用接口"+actionName+"失败!");
+			logger.info("[" + timeTag + "]" + "用户未登录,调用接口" + actionName + "失败!");
 			return SystemConsts.RESULT_NOT_LOGIN;
 		}
 		
-		String userTag = "["+"用户名:"+user.getUsername()+",ID="+user.getUserId()+"]";
+		String userTag = "[" + "用户名:" + user.getUsername() + ",ID=" + user.getUserId() + "]";
 		//判断该接口是否正常可调用
 		if (!currOp.getStatus().equals("0")) {
-			logger.info("["+timeTag+"]"+userTag+"当前接口"+actionName+"已被禁用!");
+			logger.info("[" + timeTag + "]" + userTag + "当前接口" + actionName + "已被禁用!");
 			return SystemConsts.RESULT_DISABLE_OP;
 		}
 		
@@ -95,11 +95,11 @@ public class CallMethodInterceptor extends ActionSupport implements Interceptor 
 		}
 		
 		if (isPrivilege==1) {
-			logger.info("["+timeTag+"]"+userTag+"用户没有调用接口"+actionName+"的权限,调用失败!");
+			logger.info("[" + timeTag + "]" + userTag + "用户没有调用接口" + actionName + "的权限,调用失败!");
 			return SystemConsts.RESULT_NO_POWER;
 		}
 		
-		logger.info("["+timeTag+"]"+userTag+"当前接口"+actionName+"权限验证通过!");
+		logger.info("[" + timeTag + "]" + userTag + "当前接口" + actionName + "权限验证通过!");
 		return arg0.invoke();
 	}
 }

@@ -170,15 +170,4 @@ public class User implements Serializable {
     public String getRealName() {
 		return realName;
 	}
-
-	@Override
-	public String toString() {
-		return "User [userId=" + userId + ", role=" + role + ", username="
-				+ username + ", password=" + password + ", createTime="
-				+ createTime + ", status=" + status + ", lastLoginTime="
-				+ lastLoginTime + ", ifNew=" + ifNew + ", realName=" + realName
-				+ "]";
-	}
-    
-    
 }

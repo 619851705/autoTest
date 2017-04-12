@@ -3,6 +3,8 @@ package com.dcits.business.base.bean;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.dcits.constant.Keys;
+
 /**
  * 基于Datatable服务器处理模式的分页模型
  * 
@@ -20,7 +22,7 @@ public class PageModel<T> {
 	/**
 	 * 排序方式,默认asc
 	 */
-	private String orderType = "asc";
+	private String orderType = Keys.QUERY_ORDER_ASC;
 	
 	/**
 	 * 全局搜索条件

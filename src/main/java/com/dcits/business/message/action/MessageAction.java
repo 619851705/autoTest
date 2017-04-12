@@ -11,15 +11,19 @@ import org.springframework.stereotype.Controller;
 
 import com.dcits.business.base.action.BaseAction;
 import com.dcits.business.base.bean.PageModel;
+import com.dcits.business.message.bean.ComplexParameter;
 import com.dcits.business.message.bean.Message;
 import com.dcits.business.message.bean.Parameter;
+import com.dcits.business.message.service.ComplexParameterService;
+import com.dcits.business.message.service.InterfaceInfoService;
 import com.dcits.business.message.service.MessageService;
 import com.dcits.business.message.service.ParameterService;
 import com.dcits.business.user.bean.User;
 import com.dcits.constant.ReturnCodeConsts;
-import com.dcits.util.JsonUtil;
+import com.dcits.coretest.message.parse.MessageParse;
 import com.dcits.util.PracticalUtils;
 import com.dcits.util.StrutsUtils;
+import com.dcits.util.message.JsonUtil;
 
 /**
  * 接口报文Action
@@ -39,6 +43,8 @@ public class MessageAction extends BaseAction<Message>{
 	/**报文对应的接口id*/
 	private Integer interfaceId;
 	
+	private String jsonStr;
+	
 	private MessageService messageService;
 	
 	@Autowired
@@ -49,6 +55,12 @@ public class MessageAction extends BaseAction<Message>{
 	
 	@Autowired
 	private ParameterService parameterService;
+	@Autowired
+	private InterfaceInfoService interfaceInfoService;
+	@Autowired
+	private ComplexParameterService complexParameterService;
+	
+	
 	
 	/**
 	 * 分页获取指定接口下的报文列表
@@ -113,7 +125,7 @@ public class MessageAction extends BaseAction<Message>{
 			parameters = (List<String>) JsonUtil.getJsonList(model.getParameterJson(), 1);
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOGGER.error("解析json失败", e);
+			LOGGER.error("解析json失败:" + model.getParameterJson(), e);
 			jsonMap.put("returnCode", ReturnCodeConsts.SYSTEM_ERROR_CODE);
 			jsonMap.put("msg", "系统解析json出现错误,请稍后再试 !");
 			return SUCCESS;
@@ -128,7 +140,7 @@ public class MessageAction extends BaseAction<Message>{
 			String msg = "入参节点:";
 			for (String name:parameters) {
 				for (Parameter p:ps) {
-					if (p.getParameterIdentify().toUpperCase().equals(name.toUpperCase())) {
+					if (p.getParameterIdentify().equalsIgnoreCase(name)) {
 						paramCorrectFlag = true;
 					}
 				}
@@ -142,7 +154,7 @@ public class MessageAction extends BaseAction<Message>{
 			
 			jsonMap.put("returnCode", ReturnCodeConsts.SUCCESS_CODE);//验证通过
 			if (!allCorrectFlag) {				
-				msg += "在接口参数列表中未定义,请检查!";
+				msg += "在接口中未定义,请检查!";
 				jsonMap.put("returnCode", ReturnCodeConsts.INTERFACE_MESSAGE_ERROR_JSON_CODE);//验证不通过
 				jsonMap.put("msg", msg);//验证不通过
 			}			
@@ -179,10 +191,25 @@ public class MessageAction extends BaseAction<Message>{
 		return SUCCESS;
 	}
 	
+	//测试用
+	public String test() {
+		/*jsonStr = "{\"ROOT\":{\"ReturnCode\":\"0000\",\"msg\":\"ok\",\"data\":[{\"userid\":11,\"username\":\"aa\"},{\"userid\":11,\"username\":\"aa\"}]}}";
+		//jsonStr = "{\"aa\":\"aa\",\"bb\":11}";		
+		ComplexParameter cp = parse.parseMessageToObject(jsonStr, new ArrayList<Parameter>(interfaceInfoService.get(9).getParameters()));*/
+		MessageParse parse = MessageParse.getParseInstance("json");
+		ComplexParameter cp = complexParameterService.get(1);
+		System.out.println(cp.toString());
+		System.out.println("================S=" + parse.depacketizeMessageToString(cp));
+		//complexParameterService.save(cp);
+		return SUCCESS;
+	}
+	
 	public void setInterfaceId(Integer interfaceId) {
 		this.interfaceId = interfaceId;
 	}
 	
-	
+	public void setJsonStr(String jsonStr) {
+		this.jsonStr = jsonStr;
+	}
 	
 }

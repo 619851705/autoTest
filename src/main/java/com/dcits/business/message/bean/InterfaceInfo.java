@@ -217,15 +217,4 @@ public class InterfaceInfo implements Serializable{
         this.lastModifyUser = lastModifyUser;
     }
 
-	@Override
-	public String toString() {
-		return "InterfaceInfo [interfaceId=" + interfaceId + ", user=" + user
-				+ ", interfaceName=" + interfaceName + ", interfaceCnName="
-				+ interfaceCnName + ", requestUrlMock=" + requestUrlMock
-				+ ", requestUrlReal=" + requestUrlReal + ", interfaceType="
-				+ interfaceType + ", createTime=" + createTime + ", status="
-				+ status + ", lastModifyUser=" + lastModifyUser
-				+ ", parameters=" + parameters + ", messages=" + messages + "]";
-	}
-
 }

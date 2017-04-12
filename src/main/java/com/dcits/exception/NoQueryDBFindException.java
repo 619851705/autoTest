@@ -1,8 +1,8 @@
-package com.dcits.exception.web;
+package com.dcits.exception;
 
 
 /**
- * 找不到指定的查询数据信息
+ * 找不到指定的查询数据库信息
  * @author xuwangcheng
  * @version 1.0.0.0,2017.2.13
  */

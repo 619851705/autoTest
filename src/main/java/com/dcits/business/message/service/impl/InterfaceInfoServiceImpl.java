@@ -15,7 +15,7 @@ import com.dcits.business.message.service.InterfaceInfoService;
  * @author xuwangcheng
  * @version 1.0.0.0,2017.2.13
  */
-@Service("interfaceInfoImpl")
+@Service("interfaceInfoService")
 public class InterfaceInfoServiceImpl extends BaseServiceImpl<InterfaceInfo> implements InterfaceInfoService {
 	
 	private InterfaceInfoDao interfaceInfoDao;

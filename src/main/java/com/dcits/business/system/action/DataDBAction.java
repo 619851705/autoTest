@@ -68,11 +68,11 @@ public class DataDBAction extends BaseAction<DataDB> {
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			LOGGER.error(db.getDbUrl()+","+db.getDbUrl()+":不能正确的加载数据库驱动程序",e);			
+			LOGGER.error(db.getDbUrl() + "," + db.getDbUrl() + ":不能正确的加载数据库驱动程序", e);			
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-			LOGGER.error(db.getDbUrl()+","+db.getDbUrl()+"建立查询数据库连接失败!",e1);	
+			LOGGER.error(db.getDbUrl() + "," + db.getDbUrl() + "建立查询数据库连接失败!", e1);	
 		}
 		
 		if (conn!=null) {

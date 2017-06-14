@@ -23,7 +23,7 @@ var INTERFACE_GET_URL = "interface-get"; //获取指定接口信息
 var INTERFACE_DEL_URL = "interface-del"; //删除指定接口
 
 var templateParams = {
-		tableTheads:["名称","中文名","类型","创建时间","状态","创建用户","最后修改","参数","操作"],
+		tableTheads:["名称","中文名","类型","协议","创建时间","状态","创建用户","最后修改","参数","操作"],
 		btnTools:[{
 			type:"primary",
 			size:"M",
@@ -71,6 +71,27 @@ var templateParams = {
 		},
 		{
 			required:true,
+			label:"协议类型",  	
+			select:[{	
+				name:"interfaceProtocol",
+				option:[{
+					value:"http",
+					text:"HTTP",
+					selected:"selected"
+				},{
+					value:"ftp",
+					text:"FTP",					
+				},{
+					value:"webservice",
+					text:"WebService",					
+				},{
+					value:"socket",
+					text:"Socket",					
+				}]
+				}]
+		},
+		{
+			required:true,
 			label:"中文名称",  	
 			input:[{	
 				name:"interfaceCnName"
@@ -83,7 +104,8 @@ var templateParams = {
 				placeholder:"输入完整的Url请求地址,带http://"
 				}]
 		},
-		{
+		{	
+			required:true,
 			label:"真实请求地址",  	
 			input:[{	
 				name:"requestUrlReal",
@@ -166,6 +188,12 @@ var columnsSetting = [
           		};                  
           		return labelCreate(data.interfaceType,option);
               }},
+          {
+            "data":null,
+            "render":function(data) {
+            	return labelCreate((data.interfaceProtocol).toUpperCase());
+            }
+          },
           {"data":"createTime","width":"120px"},
           {
           	"data":null,
@@ -221,7 +249,7 @@ var eventList = {
 		".edit-params":function(){
 			var data = table.row( $(this).parents('tr') ).data();
 			interfaceId = data.interfaceId;
-			layer_show(data.interfaceName+"-接口参数管理",parametersEditHmtl, "850", "500",1,function(){
+			layer_show(data.interfaceName+"-接口参数管理",parametersEditHmtl, "1000", "500",1,function(){
 				initParameters();
 			});	
 		},
@@ -229,7 +257,7 @@ var eventList = {
 			var data = table.row( $(this).parents('tr') ).data();
 			publish.renderParams.editPage.modeFlag = 1;
 			publish.renderParams.editPage.objId = data.interfaceId;
-			layer_show("编辑接口信息", editHtml, "850", "610",1);
+			layer_show("编辑接口信息", editHtml, "850", "630",1);
 			publish.init();	
 		},
 		".interface-del":function(){
@@ -250,6 +278,7 @@ var eventList = {
 				  '<td><input type="text"/>'+'</td>'+
 				  '<td><input type="text"/>'+'</td>'+
 				  '<td>'+selectS+'</td>'+
+				  '<td><input type="text" value="TopRoot."/>'+'</td>'+
 				  '<td>'+btnS+'</td></tr>';
 			$("#parameters-tbody").prepend(html);			
 		},
@@ -258,11 +287,17 @@ var eventList = {
 		},
 		"#load-json-parameter":function(){			
 			var showHtml = '<div class="page-container">'+
-				'<div class="cl pd-5 bg-1 bk-gray mt-0"> <span class="1">'+
-				'<a href="javascript:;" onclick="batchImportParams();" class="btn btn-danger radius">批量导入</a>'+
+				'<div class="cl pd-5 bg-1 bk-gray mt-0"> <span class="l">'+
+				'<a href="javascript:;" onclick="batchImportParams();" class="btn btn-danger radius">解析报文</a>'+
+				'</span><span class="r">'+
+				'<span class="select-box radius"><select class="select" size="1" id="messageType">'+
+				'<option value="json" selected>JSON格式</option>'+
+				'<option value="xml">XML格式</option>'+
+				'<option value="url">URL格式</option>'+
+				'</select></span>'+
 				'</span></div><br><textarea style="height: 240px;" class="textarea radius" '+
 				'id="jsonParams" placeholder="输入接口报文"></textarea></div>';
-			currIndex = layer_show("导入json", showHtml, "780", "400",1);
+			currIndex = layer_show("导入报文", showHtml, "780", "400",1);
 		},
 		".parameter-del":function(){
 			var that = $(this);
@@ -288,7 +323,7 @@ var eventList = {
 var mySetting = {
 		eventList:eventList,
 		templateCallBack:function(df){
-			$("#parameters-page").load("interface-Parameters.htm",function(){
+			$("#parameters-page").load("interface-parameters.htm",function(){
 				parametersEditHmtl = $("#parameters-page").html();
 				$("#parameters-page").html('');
 				
@@ -327,7 +362,7 @@ var mySetting = {
 					url:true
 				},
 				requestUrlReal:{
-					//required:true,
+					required:true,
 					url:true
 				},
 				status:{
@@ -340,7 +375,7 @@ var mySetting = {
 			listUrl:INTERFACE_LIST_URL,
 			tableObj:".table-sort",
 			columnsSetting:columnsSetting,
-			columnsJson:[0,7,8,9,10]
+			columnsJson:[0,8,9,10,11]
 		},
 		templateParams:templateParams		
 	};
@@ -365,6 +400,7 @@ function initParameters(){
 						'<td class="ellipsis param-edit-value" name="parameterName">'+ n.parameterName +'</td>'+
 						'<td class="ellipsis param-edit-value" name="defaultValue">' + n.defaultValue +'</td>'+
 						'<td class="param-edit-value" name="type">'+n.type+'</td>'+
+						'<td class="param-edit-value" name="path">'+n.path+'</td>'+
 						'<td class="param-btns">'+btnS+'</td></tr>';
 			});
 			$("#parameters-tbody").html(html);	
@@ -483,6 +519,7 @@ function saveParameter(obj){
 	var parameterName = $(tdList[2]).children().val();
 	var defaultValue = $(tdList[3]).children().val();
 	var type = $(tdList[4]).children().val();
+	var path = $(tdList[5]).children().val();
 	$.post(PARAM_SAVE_URL,{
 		parameterIdentify: parameterIdentify,
 		parameterName: parameterName,
@@ -499,6 +536,7 @@ function saveParameter(obj){
 					  '<td class="param-edit-value" name="parameterName">'+parameterName+'</td>'+
 					  '<td class="param-edit-value" name="defaultValue">'+defaultValue+'</td>'+
 					  '<td class="param-edit-value" name="type">'+type+'</td>'+
+					  '<td class="param-edit-value" name="path">'+path+'</td>'+
 					  '<td class="param-btns">'+btnS+'</td></tr>';
 				$(obj).parents("tr").remove();
 				console.log(html);
@@ -514,18 +552,19 @@ function saveParameter(obj){
 
 /**导入json*/
 function batchImportParams(i){
-	var paramsJson=$("#jsonParams").val();
+	var paramsJson=$("#jsonParams").val();	
 	if(paramsJson == '' || paramsJson == null){
-		layer.msg('你还没有输入json报文',{icon:2,time:1500});
+		layer.msg('你还没有输入任何内容',{icon:2,time:1500});
 		return false;
 	}
-	$.post(PARAM_JSON_IMPORT_URL,{interfaceId:interfaceId,paramsJson:paramsJson},function(data){
+	var messageType = $("#messageType").val();
+	$.post(PARAM_JSON_IMPORT_URL,{interfaceId:interfaceId,paramsJson:paramsJson,messageType:messageType},function(data){
 		if(data.returnCode==0){
 			initParameters();
 			layer.close(currIndex);
 			layer.msg('导入成功',{icon:1,time:1500});
 		}else if(data.returnCode == 912){
-			layer.msg('你输入的不是json格式',{icon:2,time:1500});
+			layer.msg('无法解析报文或者解析失败,请检查!',{icon:2,time:1500});
 		}else{
 			layer.alert(data.msg, {icon: 5});
 		}

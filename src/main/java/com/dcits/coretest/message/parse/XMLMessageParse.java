@@ -1,11 +1,13 @@
 package com.dcits.coretest.message.parse;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.dcits.business.message.bean.ComplexParameter;
 import com.dcits.business.message.bean.Parameter;
-import com.dcits.constant.Keys;
+import com.dcits.constant.MessageKeys;
 
 /**
  * 接口自动化<br>
@@ -29,36 +31,36 @@ public class XMLMessageParse extends MessageParse {
 	}
 
 	@Override
-	public String depacketizeMessageToString(ComplexParameter complexParameter) {
+	public String depacketizeMessageToString(ComplexParameter complexParameter, String paramsData) {
 		// TODO Auto-generated method stub
-		return Keys.XML_MESSAGE_HEAD_STRING + parseXmlMessage(complexParameter, new StringBuilder("")).toString();
+		//return MessageKeys.XML_MESSAGE_HEAD_STRING + parseXmlMessage(complexParameter, new StringBuilder(""), messageData).toString();
+		return null;
 	}
 
 	@Override
 	public String checkParameterValidity(List<Parameter> params, String message) {
 		// TODO Auto-generated method stub
-		return null;
+		return "无法解析xml报文";
 	}
 	
-	private StringBuilder parseXmlMessage(ComplexParameter parameter, StringBuilder message) {		
+	private StringBuilder parseXmlMessage(ComplexParameter parameter, StringBuilder message, Map<String, Object> messageData) {		
 		
 		String parameterType = parameter.getSelfParameter().getType().toUpperCase();
 		String nodeName = findValidParameterIdentify(parameter);
-		boolean flag = Pattern.matches(Keys.MESSAGE_PARAMETER_TYPE_ARRAY_IN_ARRAY + "|" 
-				+ Keys.MESSAGE_PARAMETER_TYPE_ARRAY + "|" + Keys.MESSAGE_PARAMETER_TYPE_OBJECT, parameterType)
+		boolean flag = Pattern.matches(MessageKeys.MESSAGE_PARAMETER_TYPE_ARRAY_IN_ARRAY + "|" 
+				+ MessageKeys.MESSAGE_PARAMETER_TYPE_ARRAY + "|" + MessageKeys.MESSAGE_PARAMETER_TYPE_OBJECT, parameterType)
 				|| (nodeName == null);
 		
 		if (!flag) {
 			message.append("<" + nodeName + ">");
 		}
 				
-		if (Pattern.matches(Keys.MESSAGE_PARAMETER_TYPE_STRING + "|" 
-				+ Keys.MESSAGE_PARAMETER_TYPE_NUMBER, parameterType)) {			
-			message.append(parameter.getSelfParameter().getDefaultValue());	
-			
+		if (Pattern.matches(MessageKeys.MESSAGE_PARAMETER_TYPE_STRING + "|" 
+				+ MessageKeys.MESSAGE_PARAMETER_TYPE_NUMBER, parameterType)) {	
+			message.append(findParameterValue(parameter.getSelfParameter(), messageData));							
 		} else {
 			for (ComplexParameter p:parameter.getChildComplexParameters()) {
-				parseXmlMessage(p, message);
+				parseXmlMessage(p, message, messageData);
 			}
 			
 		}
@@ -75,13 +77,37 @@ public class XMLMessageParse extends MessageParse {
 			return parameter.getSelfParameter().getParameterIdentify();
 		}
 		
-		if (parameter.getSelfParameter().getType().equalsIgnoreCase(Keys.MESSAGE_PARAMETER_TYPE_OBJECT) 
+		if (parameter.getSelfParameter().getType().equalsIgnoreCase(MessageKeys.MESSAGE_PARAMETER_TYPE_OBJECT) 
 				&& parameter.getParentComplexParameter() == null) {
 			//return Keys.XML_MESSAGE_DEFAULT_ROOT_NODE;
 			return null;
 		}
 		
 		return findValidParameterIdentify(parameter.getParentComplexParameter());
+	}
+
+	@Override
+	public boolean messageFormatValidation(String message) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Set<Parameter> importMessageToParameter(String message) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String parameterReplaceByNodePath(String message, String str) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getObjectByPath(String message, String path) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

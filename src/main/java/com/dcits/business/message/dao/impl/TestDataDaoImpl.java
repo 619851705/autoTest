@@ -9,4 +9,20 @@ import com.dcits.business.message.dao.TestDataDao;
 @Repository("testDataDao")
 public class TestDataDaoImpl extends BaseDaoImpl<TestData> implements TestDataDao{
 
+	@Override
+	public void updateDataValue(Integer dataId, String dataName,
+			String dataValue) {
+		// TODO Auto-generated method stub
+		String hql = "update TestData set " + dataName + "= :dataValue where dataId= :dataId";
+		getSession().createQuery(hql).setString("dataValue", dataValue).setInteger("dataId", dataId).executeUpdate();
+	}
+
+	@Override
+	public TestData findByDisrc(String dataDiscr, Integer messageSceneId) {
+		// TODO Auto-generated method stub
+		String hql = "from TestData t where messageScene.messageSceneId=:messageSceneId and dataDiscr=:dataDiscr";
+		
+		return (TestData) getSession().createQuery(hql).setInteger("messageSceneId", messageSceneId).setString("dataDiscr", dataDiscr).uniqueResult();
+	}
+
 }

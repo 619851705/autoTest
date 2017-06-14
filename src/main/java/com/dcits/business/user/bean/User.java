@@ -92,7 +92,9 @@ public class User implements Serializable {
         this.realName = realName;
     }
 
-   
+    
+    
+    
     // Property accessors
 
     public Integer getUserId() {

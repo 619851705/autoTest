@@ -1,6 +1,9 @@
 package com.dcits.util;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -18,6 +21,10 @@ import com.google.gson.JsonParser;
  * @version 1.0.0.0,2017.2.14
  */
 public class PracticalUtils {
+	
+	
+	public static final String DEFAULT_DATE_PATTERN = "HH:mm:ss"; 
+	public static final String FULL_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 	
 	private PracticalUtils() {
 		throw new Error("Please don't instantiate me！");
@@ -155,4 +162,26 @@ public class PracticalUtils {
 		 return sqlStr;
 	 }
 
+	 /**
+	  * 时间格式化
+	  * @param fromat
+	  * @param date
+	  * @return
+	  */
+	 public static String formatDate(String fromat, Date date) {
+		 DateFormat dateFormat = new SimpleDateFormat(fromat);
+		 return dateFormat.format(date);
+	 }
+	 
+	 /**
+	  * 是否为正常字符串，不为null并且不为空
+	  * @param str
+	  * @return
+	  */
+	 public static boolean isNormalString(String str) {
+		 if (str == null || str.isEmpty()) {
+			 return false;
+		 }
+		 return true;
+	 }
 }

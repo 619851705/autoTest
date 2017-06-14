@@ -38,7 +38,7 @@ public class MessageScene implements Serializable {
 	private String sceneName;
 	/**
 	 * 验证规则标志
-	 * 0   默认验证使用测试配置中的默认验证字符串
+	 * 0  根据左右边界取关键字并验证,这是默认验证
 	 * 1  使用自定义的验证配置,需要验证多个参数具体的值
 	 * 2  使用自定义的验证规则,直接验证整个返回串
 	 */
@@ -65,6 +65,13 @@ public class MessageScene implements Serializable {
 	private Set<SceneValidateRule> rules = new HashSet<SceneValidateRule>();
 	
 	private String validateMethodStr;
+	
+	private Integer testDataNum = getTestDataNum();
+	
+	/**
+	 * 可用测试数据
+	 */
+	private Set<TestData> enabledTestDatas = new HashSet<TestData>();
      
     // Constructors
 
@@ -72,6 +79,9 @@ public class MessageScene implements Serializable {
     public MessageScene() {
     }
 
+    public MessageScene(Integer messageSceneId) {
+    	this.messageSceneId = messageSceneId;
+    }
     
     /** full constructor */
     public MessageScene(Message message, String sceneName, String validateRuleFlag,String mark) {
@@ -79,17 +89,26 @@ public class MessageScene implements Serializable {
         this.sceneName = sceneName;
         this.validateRuleFlag = validateRuleFlag;
         this.mark = mark;
-    }
-
-   
-    // Property accessors
+    }       
     
+    
+    // Property accessors      
     
     public void setTestSets(Set<TestSet> testSets) {
 		this.testSets = testSets;
 	}
     
-    public String getValidateMethodStr() {
+    public Integer getTestDataNum() {
+		return this.testDatas.size();
+	}
+
+
+	public void setTestDataNum(Integer testDataNum) {
+		this.testDataNum = testDataNum;
+	}
+
+
+	public String getValidateMethodStr() {
 		return validateMethodStr;
 	}
 
@@ -179,27 +198,42 @@ public class MessageScene implements Serializable {
     }
 
     @JSON(serialize=false)
-    public Set<TestData> getTestDatas() {
-    	Set<TestData> delTds=new HashSet<TestData>();
-    	for (TestData td:testDatas) {
+    public Set<TestData> getTestDatas() {   	
+        return testDatas;
+    }
+       
+    public void setTestDatas(Set<TestData> testDatas) {
+        this.testDatas = testDatas;
+    }
+
+    @JSON(serialize=false)
+	public Set<TestData> getEnabledTestDatas(Integer count) {
+		if (count == null) {
+			return enabledTestDatas;
+		}
+		Set<TestData> datasSet = new HashSet<TestData>();
+		int dataCount = 1;
+		for (TestData data:enabledTestDatas) {
+			datasSet.add(data);
+			dataCount++;
+			if (count == dataCount) {
+				break;
+			}
+		}
+		return datasSet;  			
+	}
+
+	public void setEnabledTestDatas() {
+		enabledTestDatas =new HashSet<TestData>(testDatas);
+		HashSet<TestData> delTds = new HashSet<TestData>();
+    	for (TestData td:enabledTestDatas) {
     		if (td.getStatus().equals("1")) {
     			delTds.add(td);
     		}
     	}
-    	this.testDatas.removeAll(delTds);
-        return this.testDatas;
-    }
-    
-    public void setTestDatas(Set<TestData> testDatas) {
-        this.testDatas = testDatas;
-    }
-   
-
-
-
-
-
-
+    	enabledTestDatas.removeAll(delTds);
+	}
+  
 
 
 }

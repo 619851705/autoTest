@@ -2,6 +2,8 @@ package com.dcits.coretest.message.parse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.dcits.business.message.bean.ComplexParameter;
 import com.dcits.business.message.bean.Parameter;
@@ -26,30 +28,55 @@ public class URLMessageParse extends MessageParse {
 	}
 
 	@Override
-	public String depacketizeMessageToString(ComplexParameter complexParameter) {
+	public String depacketizeMessageToString(ComplexParameter complexParameter, String paramsData) {
 		// TODO Auto-generated method stub
-		return paraseUrlMessage(complexParameter, new StringBuilder("")).toString().substring(1);
+		//return paraseUrlMessage(complexParameter, new StringBuilder(""), messageData).toString().substring(1);
+		return null;
 	}
 
 	@Override
 	public String checkParameterValidity(List<Parameter> params, String message) {
 		// TODO Auto-generated method stub
-		return null;
+		return "无法解析此Url参数报文";
 	}
 	
-	private StringBuilder paraseUrlMessage(ComplexParameter parameter, StringBuilder message) {
+	private StringBuilder paraseUrlMessage(ComplexParameter parameter, StringBuilder message, Map<String, Object> messageData) {
 		List<ComplexParameter> childParams = new ArrayList<ComplexParameter>(parameter.getChildComplexParameters());
 		
 		if (childParams.size() == 0) {
-			message.append("&").append(parameter.getSelfParameter().getParameterIdentify()).append("=").append(parameter.getSelfParameter().getDefaultValue());	
+			message.append("&").append(parameter.getSelfParameter().getParameterIdentify()).append("=").append(findParameterValue(parameter.getSelfParameter(), messageData));	
 			return message;
 		}
 		
 		for (int i = 0; i < childParams.size(); i++) {
-			paraseUrlMessage(childParams.get(i), message);						
+			paraseUrlMessage(childParams.get(i), message, messageData);						
 		}
 		
 		return message;
+	}
+
+	@Override
+	public boolean messageFormatValidation(String message) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public Set<Parameter> importMessageToParameter(String message) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String parameterReplaceByNodePath(String message, String str) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getObjectByPath(String message, String path) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

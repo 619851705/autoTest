@@ -8,7 +8,7 @@ package com.dcits.constant;
  */
 public class ReturnCodeConsts {
 	
-	//通用ReturnCode
+	//通用ReturnCode 0-9
 	
 	/**
 	 * 成功<br>
@@ -125,10 +125,10 @@ public class ReturnCodeConsts {
 	//interface相关 91开头
 	
 	/**
-	 * 不是合法的json格式 <br>
+	 * 不是合法的指定格式 <br>
 	 * '912'
 	 */
-	public static final Integer INTERFACE_ILLEGAL_JSON_CODE = 912;
+	public static final Integer INTERFACE_ILLEGAL_TYPE_CODE = 912;
 	/**
 	 * 入参报文缺少参数 <br>
 	 * '917'
@@ -140,5 +140,12 @@ public class ReturnCodeConsts {
 	 * '914'
 	 */
 	public static final Integer INTERFACE_MESSAGE_ERROR_JSON_CODE = 914;
+	
+	//message相关 135
+	/**
+	 * 报文入参验证失败<br>
+	 * '1351'
+	 */
+	public static final Integer MESSAGE_VALIDATE_ERROR = 1351;
 	
 }

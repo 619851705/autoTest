@@ -19,7 +19,7 @@ import com.dcits.business.user.bean.User;
  * @version 1.0.0.0,2017.2.13
  */
 
-public class InterfaceInfo implements Serializable{
+public class InterfaceInfo implements Serializable {
 
 
     // Fields    
@@ -84,18 +84,27 @@ public class InterfaceInfo implements Serializable{
 	/**
 	 * 当前接口下的参数
 	 */
-	private Set<Parameter> parameters=new HashSet<Parameter>();
+	private Set<Parameter> parameters = new HashSet<Parameter>();
 	
 	/**
 	 * 当前接口下的报文
 	 */
-	private Set<Message> messages=new HashSet<Message>();
+	private Set<Message> messages = new HashSet<Message>();
     // Constructors
 
+	/**
+	 * 接口协议类型
+	 */
+	private String interfaceProtocol;
+	
     /** default constructor */
     public InterfaceInfo() {
     }
 
+    public InterfaceInfo(Integer interfaceId) {
+    	this.interfaceId = interfaceId;
+    }
+    
 	/** minimal constructor */
     public InterfaceInfo(String interfaceName) {
         this.interfaceName = interfaceName;
@@ -117,11 +126,22 @@ public class InterfaceInfo implements Serializable{
    
     // Property accessors
     
+    
+    
+    
     public Integer getInterfaceId() {
         return this.interfaceId;
     }
     
-    @JSON(serialize=false)
+    public String getInterfaceProtocol() {
+		return interfaceProtocol;
+	}
+
+	public void setInterfaceProtocol(String interfaceProtocol) {
+		this.interfaceProtocol = interfaceProtocol;
+	}
+
+	@JSON(serialize=false)
     public Set<Message> getMessages() {
 		return messages;
 	}

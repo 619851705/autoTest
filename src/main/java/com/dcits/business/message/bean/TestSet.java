@@ -9,22 +9,48 @@ import org.apache.struts2.json.annotations.JSON;
 
 import com.dcits.business.user.bean.User;
 
+/**
+ * 测试集实体类
+ * 
+ * @author xuwangcheng
+ * @version 1.0.0.0,20170518
+ *
+ */
 
-
-public class TestSet implements Serializable{
+public class TestSet implements Serializable {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
 	private Integer setId;
+	/**
+	 * 测试集名称
+	 */
 	private String setName;
+	/**
+	 * 创建用户
+	 */
 	private User user;
+	/**
+	 * 创建时间
+	 */
 	private Timestamp createTime;
+	/**
+	 * 可用状态<br>
+	 * 0-可用   1-不可用<br>
+	 * 在执行定时任务测试时,将会忽略状态为1的测试集
+	 */
 	private String status;
+	/**
+	 * 备注
+	 */
 	private String mark;
 	
-	private String userName;	
+	/**
+	 * 包含场景数量
+	 */
 	private Integer sceneNum;
 	
 	
@@ -42,24 +68,13 @@ public class TestSet implements Serializable{
 
 	public TestSet() {
 	}
-
-	
-	
 	
 	public Integer getSceneNum() {
-		return sceneNum;
+		return this.ms.size();
 	}
 
-	public void setSceneNum() {
-		this.sceneNum = this.getMs().size();
-	}
-
-	public void setUserName() {
-		this.userName = user.getRealName();
-	}
-	
-	public String getUserName() {
-		return userName;
+	public void setSceneNum(Integer sceneNum) {
+		this.sceneNum = sceneNum;
 	}
 	
 	public Integer getSetId() {
@@ -78,7 +93,6 @@ public class TestSet implements Serializable{
 		this.setName = setName;
 	}
 
-	@JSON(serialize=false)
 	public User getUser() {
 		return user;
 	}

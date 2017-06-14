@@ -101,6 +101,7 @@
     
     function getUserInfo(){
     	var userInfo = {};
+    	var lastLoginTime = "";
     	var df = $.Deferred();
     	df.done(function(){
     		if (!($.isEmptyObject(userInfo))) {
@@ -109,7 +110,7 @@
     	    	//setInterval(getMailNum,15000); 
     			$("#group_name").text(userInfo.role.roleGroup);
             	$("#real_name").text(userInfo.realName);
-            	$("#last_login_time").text(userInfo.lastLoginTime);
+            	$("#last_login_time").text(lastLoginTime);
                 parent.$("#role_name").text(userInfo.role.roleName);
                 parent.$("#real_name").text(userInfo.realName);
                 parent.$("#user_id").val(userInfo.userId);
@@ -122,6 +123,7 @@
     	$.post("user-getLoginUserInfo",function(data) {
     		if (data.returnCode == 0) {
     			userInfo = data.data;
+    			lastLoginTime = data.lastLoginTime;
     			df.resolve();
     		} else if (data.returnCode == 7) {
     			var username = getCookie("username");
@@ -133,6 +135,7 @@
                     },function(data) {
                         if (data.returnCode == 0) {
                         	userInfo = data.data;
+                        	lastLoginTime = data.lastLoginTime;
                         	df.resolve();
                         } else {
                         	parent.window.location.href="login.html";

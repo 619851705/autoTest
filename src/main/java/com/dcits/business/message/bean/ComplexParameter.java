@@ -1,8 +1,14 @@
 package com.dcits.business.message.bean;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import org.apache.struts2.json.annotations.JSON;
+
+import com.dcits.constant.MessageKeys;
 
 public class ComplexParameter implements Serializable{
 
@@ -18,6 +24,8 @@ public class ComplexParameter implements Serializable{
 	private Set<ComplexParameter> childComplexParameters = new HashSet<ComplexParameter>();
 	
 	private ComplexParameter parentComplexParameter;
+	
+	private Message message;
 	
 
 	public ComplexParameter(Integer id, Parameter selfParameter,
@@ -48,8 +56,34 @@ public class ComplexParameter implements Serializable{
 	}
 
 	
+	public List<Parameter> getEnableSettingDataParameter(List<Parameter> params) {
+		
+		if (params == null) {
+			params = new ArrayList<Parameter>();
+		}
+		
+		String parameterType = this.selfParameter.getType();
+		if (parameterType.equalsIgnoreCase(MessageKeys.MESSAGE_PARAMETER_TYPE_NUMBER)
+				 || parameterType.equalsIgnoreCase(MessageKeys.MESSAGE_PARAMETER_TYPE_STRING)) {
+			params.add(this.selfParameter);
+		} else {
+			for (ComplexParameter cp:this.getChildComplexParameters()) {
+				cp.getEnableSettingDataParameter(params);
+			}
+		}
+		return params;
+	}
 	
+	@JSON(serialize=false)
+	public Message getMessage() {
+		return message;
+	}
+
+	public void setMessage(Message message) {
+		this.message = message;
+	}
 	
+	@JSON(serialize=false)
 	public ComplexParameter getParentComplexParameter() {
 		return parentComplexParameter;
 	}
@@ -74,6 +108,7 @@ public class ComplexParameter implements Serializable{
 		this.selfParameter = selfParameter;
 	}
 	
+	@JSON(serialize=false)
 	public Set<ComplexParameter> getChildComplexParameters() {
 		return childComplexParameters;
 	}
@@ -88,7 +123,7 @@ public class ComplexParameter implements Serializable{
 			this.childComplexParameters.add(p);
 		}
 	}
-
+	
 	@Override
 	public String toString() {
 		return "ComplexParameter [id=" + id + ", selfParameter=" + selfParameter + ", childComplexParameters="

@@ -39,7 +39,7 @@ public class BaseAction<T> extends ActionSupport implements ModelDriven<T> {
 	/**
 	 * ajax调用返回的map
 	 */
-	protected Map<String,Object> jsonMap=new HashMap<String,Object>();
+	protected Map<String,Object> jsonMap = new HashMap<String,Object>();
 
 	/**
 	 * 传入的泛型类
@@ -84,6 +84,11 @@ public class BaseAction<T> extends ActionSupport implements ModelDriven<T> {
 	 */
 	protected String checkNameFlag;
 	
+	/**
+	 * 自定义查询条件
+	 */
+	protected String[] filterCondition;
+	
 	public void setBaseService(BaseService<T> baseService) {
 		this.baseService = baseService;
 	}
@@ -96,10 +101,10 @@ public class BaseAction<T> extends ActionSupport implements ModelDriven<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	public String list() {
-		Map<String,Object>  dt = StrutsUtils.getDTParameters();
+		Map<String,Object>  dt = StrutsUtils.getDTParameters(clazz);
 		PageModel<T> pu = baseService.findByPager(start, length
 				,(String)dt.get("orderDataName"),(String)dt.get("orderType")
-				,(String)dt.get("searchValue"),(List<String>)dt.get("dataParams"));
+				,(String)dt.get("searchValue"),(List<String>)dt.get("dataParams"), prepareList());
 		
 		jsonMap.put("draw", draw);
 		jsonMap.put("data", processListData(pu.getDatas()));
@@ -113,6 +118,14 @@ public class BaseAction<T> extends ActionSupport implements ModelDriven<T> {
 		jsonMap.put("returnCode", ReturnCodeConsts.SUCCESS_CODE);
 		
 		return SUCCESS;
+	}
+	
+	/**
+	 * 准备自定义的查询条件
+	 * @return
+	 */
+	public String[] prepareList() {
+		return this.filterCondition;
 	}
 	
 	/**
@@ -159,6 +172,7 @@ public class BaseAction<T> extends ActionSupport implements ModelDriven<T> {
 	 * @return
 	 */
 	public String edit() {
+		
 		baseService.edit(model);
 		jsonMap.put("returnCode", ReturnCodeConsts.SUCCESS_CODE);
 		

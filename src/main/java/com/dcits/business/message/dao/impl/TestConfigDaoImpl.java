@@ -9,4 +9,10 @@ import com.dcits.business.message.dao.TestConfigDao;
 @Repository("testConfigDao")
 public class TestConfigDaoImpl extends BaseDaoImpl<TestConfig> implements TestConfigDao{
 
+	@Override
+	public TestConfig getConfigByUserId(Integer userId) {
+		String hql="From TestConfig t where t.userId= :userId";
+		return (TestConfig) getSession().createQuery(hql).setInteger("userId",userId).uniqueResult();
+	}
+
 }

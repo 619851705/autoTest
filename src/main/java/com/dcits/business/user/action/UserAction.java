@@ -15,6 +15,7 @@ import com.dcits.business.user.bean.User;
 import com.dcits.business.user.service.UserService;
 import com.dcits.constant.ReturnCodeConsts;
 import com.dcits.util.MD5Util;
+import com.dcits.util.PracticalUtils;
 import com.dcits.util.StrutsUtils;
 
 
@@ -75,12 +76,15 @@ public class UserAction extends BaseAction<User>{
 			}
 			returnCode = ReturnCodeConsts.USER_ACCOUNT_LOCK_CODE;
 			msg = "你的账号已被锁定,请联系管理员进行解锁。";
+			
 			if (model.getStatus().equals("0")) {
 				jsonMap.put("data", model);
+				jsonMap.put("lastLoginTime", PracticalUtils.formatDate(PracticalUtils.FULL_DATE_PATTERN, model.getLastLoginTime()));
 				returnCode = ReturnCodeConsts.SUCCESS_CODE;
 				msg = "";
 				//将用户信息放入session中
-				StrutsUtils.getSessionMap().put("user", model);			
+				StrutsUtils.getSessionMap().put("user", model);	
+				StrutsUtils.getSessionMap().put("lastLoginTime", PracticalUtils.formatDate(PracticalUtils.FULL_DATE_PATTERN, model.getLastLoginTime()));
 				model.setLastLoginTime(new Timestamp(System.currentTimeMillis()));
 				userService.edit(model);
 				LOGGER.info("用户" + model.getRealName() + "[ID=" + model.getUserId() + "]" + "登录成功!");				
@@ -127,7 +131,8 @@ public class UserAction extends BaseAction<User>{
 		jsonMap.put("returnCode", ReturnCodeConsts.NOT_LOGIN_CODE);
 		
 		if (user != null) {
-			jsonMap.put("data", user);			
+			jsonMap.put("data", user);
+			jsonMap.put("lastLoginTime", StrutsUtils.getSessionMap().get("lastLoginTime"));
 			jsonMap.put("returnCode", ReturnCodeConsts.SUCCESS_CODE);
 		}
 		return SUCCESS;

@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 
 import org.apache.struts2.json.annotations.JSON;
 
+import com.dcits.annotation.FieldNameMapper;
 import com.dcits.business.user.bean.User;
 
 /**
@@ -73,6 +74,7 @@ public class InterfaceMock implements Serializable {
 	/**
 	 * 创建用户名
 	 */
+	@FieldNameMapper("user.realName")
 	private String createUserName;
 	
 	public InterfaceMock(String interfaceName, String mockUrl,

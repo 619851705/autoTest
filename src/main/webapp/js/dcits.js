@@ -119,7 +119,7 @@ var publish = {
       * 不可选：
       * ifFirst: true 当前是否为本页面第一次初始化  防止事件被重复绑定 默认为true
       * 可选:
-      * customCallBack:数据渲染 不是list  edit页面的自定义数据渲染方法 或者二次渲染 
+      * customCallBack:数据渲染 不是list  edit页面的自定义数据渲染方法 或者在DT初始化完毕之后进行二次渲染 
       * templateCallBack:默认的模板渲染之后 自定义的二次渲染
       * eventList:页面event绑定 默认{}
       * renderType: 当前渲染模式 listPage还是editPage 默认为list 可选edit
@@ -134,15 +134,17 @@ var publish = {
       * columnsSetting:列的设置
       * 
       * 可选:
-      * beforeInit:执行init方法之前需要执行的方法  请在该方法最后调用df.resolve();   
+      * beforeInit:执行list页面的init方法之前执行的方法  请在该方法最后调用df.resolve();   
       * columnsJson:不参与排序的列
+      * dtOtherSetting:DT其他的自定义设置
+      * dtAjaxCallback:DataTables在每次通过ajax.reload返回之后的回调
       * 
       * edit页面
       * 必须：
       * editUrl:编辑请求地址 必要
       * ifUseValidate:是否使用jqueryValidate插件  默认true  可选false  如果不使用,需要自己定义提交事件
       * 可选：
-      * beforeInit:执行init方法之前需要执行的参数  请在该方法最调用df.resolve();
+      * beforeInit:执行edit页面的init方法之前执行  请在该方法最调用df.resolve();
       * formObj:对应的form容器 默认为 ".form-horizontal" 可选
       * modeFlag:指定时add还是edit操作  默认为0-add  可选 1-edit
       * objId: get实体时需要的id
@@ -151,17 +153,17 @@ var publish = {
       * messages 提示 定义验证时展示的提示信息
       * closeFlag:成功提交并返回之后是否关闭当前编辑窗口  默认为true  可选false
       * ajaxCallbackFun: ajax提交中的回调函数  如传入null,则使用默认
-      * renderCallback:function(obj){}  如果默认的渲染结果不是完整或者正确的,可以传入该回调重新或者附加渲染  obj 实体对象
+      * renderCallback:function(obj){}  如果默认的渲染结果不是完整或者正确的,可以传入该回调重新或者附加渲染  obj=通过get方法获取的对应实体对象
       * 
       * 
       * templateParams参数：
       * tableTheads:必须的  传入字符串数组,渲染成指定的表头  
       * btnTools:表格上方的工具栏 带文字和图标样式按钮
-	  * formControls: edit页面的表单控件渲染,参见下面的数据格式  需要某种类型的控件 必须需要将对应子节点下的flag设置为true
+	  * formControls: edit页面的表单控件渲染,参见下面的数据格式  
 	  *		   [{
 				edit:flase,
 				required:false,
-				label:"",   	//如果没有label 该控件为隐藏input 同时需要填写下面的name
+				label:"",   	//如果没有label 该控件为隐藏input 同时需要填写下面的name 可选value
 				name:"",
 				objText:"",
 				input:[{	
@@ -210,9 +212,11 @@ var publish = {
     		 beforeInit:function(df){
         		 df.resolve();
         	 },
+        	 dtAjaxCallback:function(){},      	 
         	 tableObj:null,
         	 columnsSetting:{},
         	 columnsJson:[],
+        	 dtOtherSetting:{},
         	 dt:null
     	 },
     	 editPage:{
@@ -243,6 +247,7 @@ var publish = {
       * @param callback
       */
      renderTemplate:function(df,callback){
+    	 $("body").spinModal();
     	 if(this.renderParams.userDefaultTemplate){
     		 var t = this.renderParams.templateParams;
         	 var html = "";
@@ -276,8 +281,8 @@ var publish = {
     		}); 
     	 }else{
     		 callback(df);
-    	 }
-
+    	 }   	 
+    	 $("body").spinModal(false);
      },
      /**
       * 内部所用的函数-渲染数据 不同的页面的渲染模式  通用为list(列表页) edit(编辑增加页) 其他类型自己扩展
@@ -285,12 +290,11 @@ var publish = {
       */
      renderData : function(callback){ 
     	 var p = this.renderParams;
-    	 
     	 //默认渲染
     	 if(p.userDefaultRender==true){
     		 if(p.renderType=="list"){
     			 var l = p.listPage;
-    			 table = initDT(l.tableObj,l.listUrl,l.columnsSetting,l.columnsJson);
+    			 table = initDT(l.tableObj,l.listUrl,l.columnsSetting,l.columnsJson, l.dtOtherSetting);
     		 }    		 
     		 if(p.renderType=="edit"){
     			 var e = p.editPage;
@@ -301,9 +305,9 @@ var publish = {
     				 (e.saveUrl != null && e.saveUrl != "") && (sUrl = e.saveUrl);
     			 }    			 
     			 e.ifUseValidate && formValidate(e.formObj,e.rules,e.messages,sUrl,e.closeFlag,e.ajaxCallbackFun);
-    		 }
-    	 }	 
-		 callback(p);		 
+    		 }    		 
+    	 } 
+    	callback(p); 
      },
      /**
       * 统一绑定监听器
@@ -351,25 +355,36 @@ $.fn.delegates = function(configs) {
  * @param columnsJson  不参与排序的列 jsonArray
  * @returns table 返回对应的DataTable实例
  */
-function initDT(tableObj,ajaxUrl,columnsSetting,columnsJson){
-	//渲染前使用自定义遮罩层
+function initDT(tableObj,ajaxUrl,columnsSetting,columnsJson,dtOtherSetting){
+	var data = [];
 	$wrapper.spinModal();
 	var table = $(tableObj)
-	//发送ajax之前
+	/*//发送ajax请求时
+	.on('perXhr.dt', function() {
+		
+	})*/
+	//ajax完成时
 	.on('xhr.dt', function ( e, settings, json, xhr ) {
-        if(json.returnCode!=0){
+        if(json.returnCode != 0){
         	layer.alert(json.msg,{icon:5});
+        	return false;
         }
+        data = json.data;
+        
     })
+   /* //重绘完毕
+    .on('draw.dt', function () { //初始化和刷新都会触发
+    	publish.renderParams.listPage.dtAjaxCallback();
+    })*/
     //初始化完毕
-    .on( 'init.dt', function () {
-    	$wrapper.spinModal(false);
-    } )
-	.DataTable($.extend(true,{},CONSTANT.DATA_TABLES.DEFAULT_OPTION,{
+    .on( 'init.dt', function () {  //刷新表格不会触发此事件  只存在一次
+    	$wrapper.spinModal(false);      	
+    })
+	.DataTable($.extend(true, {}, CONSTANT.DATA_TABLES.DEFAULT_OPTION,{
 		"ajax":ajaxUrl,
         "columns":columnsSetting,                                           
-         "columnDefs": [{"orderable":false,"aTargets":columnsJson}]
-          }));
+        "columnDefs": [{"orderable":false, "aTargets":columnsJson}]
+        }, dtOtherSetting));
 	
 	return table;
 }
@@ -393,15 +408,15 @@ function checkboxHmtl(name,val,className){
  * id 删除的实体ID
  * obj 表格删除对应的内容
  */
-function delObj(tip,url,id,obj){
+function delObj(tip, url, id, obj){
 	layer.confirm(tip,function(index){
 		$wrapper.spinModal();
-		$.post(url,{id:id},function(data){
-    		if(data.returnCode==0){
+		$.post(url,{id:id},function(data) {
+    		if (data.returnCode==0) {
     			$wrapper.spinModal(false);
     			table.row($(obj).parents('tr')).remove().draw();
                 layer.msg('已删除',{icon:1,time:1500});
-    		}else{
+    		} else {
     			$wrapper.spinModal(false);
     			layer.alert(data.msg, {icon: 5});
     		}
@@ -556,7 +571,11 @@ function formValidate(formObj,rules,messages,ajaxUrl,closeFlag,ajaxCallbackFun){
  * 所有表格页面都是的DT对象名称都要命名为table
  */
 function refreshTable(){
-	table.ajax.reload(null,false);
+	$wrapper.spinModal();
+	table.ajax.reload(function(json) {
+		publish.renderParams.listPage.dtAjaxCallback();
+		$wrapper.spinModal(false);
+	}, false);
 
 }
 
@@ -617,13 +636,17 @@ function registHelper(){
 	"1":{
 		btnStyle:"default",
 		status:"失败"
+		},
+	"default":{
+		btnStyle:"danger",
+		status:"未知"
 		}
 	}
  以上是默认的配置,你也可以传入自定义的配置
  * @param data   ["1","0"] 数组或者 字符串 number都可以
  * @returns {String}
  */
-function labelCreate(data,option){
+function labelCreate(data, option){
 	var html = '';
 	var datas = [];
 	if(!(data instanceof Array)){
@@ -631,6 +654,15 @@ function labelCreate(data,option){
 	} else {
 		datas = data;
 	}
+	
+	if (option == null) {
+		option = {
+				"default":{
+					btnStyle:"primary",
+					status:datas[0]
+				}};
+	}
+	
 	$.each(datas,function(i,n){
         if(option && option[n]){
             html += '<span class="label label-'+option[n]["btnStyle"]+' radius">'+option[n]["status"]+'</span>';
@@ -639,14 +671,29 @@ function labelCreate(data,option){
             	html += '<span class="label label-success radius">正常</span>';
             }
             if(n=="1"){
-            	html += '<span class="label label-danger radius">禁用</span>';;
-            }
+            	html += '<span class="label label-danger radius">禁用</span>';
+            } 
+            
+            if (n != "0" && n != "1") {
+            	html += '<span class="label label-'+option["default"]["btnStyle"]+' radius">' + option["default"]["status"] + '</span>';
+            }                       
         }
         if(datas.length>(i+1)){
         	html +="&nbsp;";
         }
     });
 	return html;
+}
+
+/**
+ * 获取远程地址的html文件
+ */
+function jqueryLoad(url, dom, callback) {
+	dom.load(url, function() {
+		var domHmtl = dom.html();
+		dom.html('');
+		callback(domHmtl);		
+	});	
 }
 
 /**
@@ -679,9 +726,10 @@ function ellipsisData(dataName) {
  * @param h 高度,默认值
  * @param type 类型 1-页面层 2-frame层
  * @param success 成功打开之后的回调函数
+ * @param cancel 右上角关闭层的回调函数
  * @returns index
  */
-function layer_show(title,url,w,h,type,success){
+function layer_show(title,url,w,h,type,success,cancel){
 	if (title == null || title == '') {
 		title=false;
 	};
@@ -705,7 +753,8 @@ function layer_show(title,url,w,h,type,success){
 		shade:0.4,
 		title: title,
 		content: url,
-		success:success
+		success:success,
+		cancel:cancel
 	});
 	return index;
 }

@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.struts2.json.annotations.JSON;
 
+import com.dcits.annotation.FieldNameMapper;
 import com.dcits.business.user.bean.User;
 
 
@@ -27,6 +28,12 @@ public class Message implements Serializable{
 	
 	/**报文id*/
 	private Integer messageId;
+	
+	/**
+	 * 报文格式 <br>
+	 * xml、json、url
+	 */
+	private String messageType;
 	
 	/**所属接口*/
 	private InterfaceInfo interfaceInfo;
@@ -55,11 +62,23 @@ public class Message implements Serializable{
 	/**完整入参报文*/
 	private String parameterJson;
 
+	/**
+	 * 调用参数<br>
+	 * 用json串保存，不同的协议有不同的参数
+	 */
+	private String callParameter;
+	
 	/**所有的场景*/
 	private Set<MessageScene> scenes = new HashSet<MessageScene>();
      
     /**所属接口名*/ 
+	@FieldNameMapper("interfaceInfo.interfaceName")
 	private String interfaceName;
+	
+	/**
+	 * 复杂参数组成
+	 */
+	private ComplexParameter complexParameter;
 	
     @SuppressWarnings("unused")
 	private Integer sceneNum = this.getSceneNum();
@@ -72,10 +91,9 @@ public class Message implements Serializable{
 
     
     /** full constructor */
-    public Message(InterfaceInfo interfaceInfo, User user, Parameter parameter, String messageName, String requestUrl, Timestamp createTime, String status, String lastModifyUser,String parameterJson) {
+    public Message(InterfaceInfo interfaceInfo, User user, String messageName, String requestUrl, Timestamp createTime, String status, String lastModifyUser,String parameterJson) {
         this.interfaceInfo = interfaceInfo;
         this.user = user;
-        this.parameter = parameter;
         this.messageName = messageName;
         this.requestUrl = requestUrl;
         this.createTime = createTime;
@@ -106,6 +124,17 @@ public class Message implements Serializable{
 		return this.scenes.size();
 	}
 
+	
+	
+	public String getCallParameter() {
+		return callParameter;
+	}
+
+
+	public void setCallParameter(String callParameter) {
+		this.callParameter = callParameter;
+	}
+
 
 	public void setSceneNum(Integer sceneNum) {
 		this.sceneNum = sceneNum;
@@ -134,8 +163,28 @@ public class Message implements Serializable{
     public void setInterfaceInfo(InterfaceInfo interfaceInfo) {
         this.interfaceInfo = interfaceInfo;
     }
+    
+    public ComplexParameter getComplexParameter() {
+		return complexParameter;
+	}
 
-    public User getUser() {
+
+	public void setComplexParameter(ComplexParameter complexParameter) {
+		this.complexParameter = complexParameter;
+	}
+
+
+	public String getMessageType() {
+		return messageType;
+	}
+
+
+	public void setMessageType(String messageType) {
+		this.messageType = messageType;
+	}
+
+
+	public User getUser() {
         return this.user;
     }
     

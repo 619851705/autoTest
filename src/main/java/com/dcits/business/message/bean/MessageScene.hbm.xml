@@ -22,20 +22,20 @@
         <property name="mark" type="java.lang.String">
             <column name="mark" />
         </property>
-        <set name="testDatas" cascade="all-delete-orphan" lazy="true"  order-by="Status">
+        <set name="testDatas" cascade="all" lazy="true"  order-by="Status" inverse="true">
             <key>
                 <column name="message_scene_id" />
             </key>
             <one-to-many class="com.dcits.business.message.bean.TestData" />
         </set>
-        <set name="testResults" cascade="save-update" lazy="true">
+        <set name="testResults" cascade="all" lazy="true" inverse="true">
             <key>
                 <column name="message_scene_id" />
             </key>
             <one-to-many class="com.dcits.business.message.bean.TestResult" />
         </set>
         
-          <set name="rules" cascade="save-update" lazy="true">
+        <set name="rules" cascade="all" lazy="true" inverse="true">
             <key>
                 <column name="message_scene_id" />
             </key>

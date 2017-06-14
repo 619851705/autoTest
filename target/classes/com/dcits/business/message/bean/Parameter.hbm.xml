@@ -11,7 +11,7 @@
             <generator class="native"></generator>
         </id>
         <property name="parameterIdentify" type="java.lang.String">
-            <column name="parameter_identify" length="120" not-null="true" />
+            <column name="parameter_identify" length="120"/>
         </property>
         <property name="parameterName" type="java.lang.String">
             <column name="parameter_name" length="120" />
@@ -29,7 +29,7 @@
             <column name="interface_id" />
         </many-to-one>
         
-        <set name="complexParameters" cascade="all" lazy="true" inverse="true">
+        <set name="complexParameters" lazy="true">
         	<key>
         		<column name="self_parameter_id"></column>
         	</key>

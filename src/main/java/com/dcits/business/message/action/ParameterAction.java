@@ -2,7 +2,7 @@ package com.dcits.business.message.action;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +12,10 @@ import org.springframework.stereotype.Controller;
 import com.dcits.business.base.action.BaseAction;
 import com.dcits.business.message.bean.InterfaceInfo;
 import com.dcits.business.message.bean.Parameter;
+import com.dcits.business.message.service.InterfaceInfoService;
 import com.dcits.business.message.service.ParameterService;
 import com.dcits.constant.ReturnCodeConsts;
-import com.dcits.util.message.JsonUtil;
+import com.dcits.coretest.message.parse.MessageParse;
 
 /**
  * 接口自动化
@@ -42,7 +43,8 @@ public class ParameterAction extends BaseAction<Parameter> {
 		super.setBaseService(parameterService);
 		this.parameterService = parameterService;
 	}
-	
+	@Autowired
+	private InterfaceInfoService interfaceInfoService;
 	
 	/**
 	 * 通过入参json报文{paramJson}批量导入接口参数
@@ -65,6 +67,11 @@ public class ParameterAction extends BaseAction<Parameter> {
 	 * 参数对应的接口id
 	 */
 	private Integer interfaceId;
+	
+	/**
+	 * 传入的报文类型
+	 */
+	private String messageType;
 	
 	/**
 	 * 根据指定的interfaceId接口id来获取下面的所有参数
@@ -102,35 +109,39 @@ public class ParameterAction extends BaseAction<Parameter> {
 	 */
 	@SuppressWarnings("unchecked")
 	public String batchImportParams() {
-		Object[] jsonTree = null;
-		try {
-			jsonTree = (Object[]) JsonUtil.getJsonList(paramsJson, 3);
-		} catch (Exception e) {
-			LOGGER.error("解析json串失败!", e);			
+		MessageParse parseUtil = MessageParse.getParseInstance(messageType);
+		
+		if (parseUtil == null) {
+			jsonMap.put("msg", "无法解析此格式报文!");
+			jsonMap.put("returnCode", ReturnCodeConsts.MISS_PARAM_CODE);
+			return SUCCESS;
 		}
-		jsonMap.put("returnCode", ReturnCodeConsts.INTERFACE_ILLEGAL_JSON_CODE);
 		
-		if (jsonTree != null) {			
-			Map<String,String> valueMap = (Map<String, String>)jsonTree[3];
-			List<String> paramList = (List<String>) jsonTree[0];
-			List<String> typeList = (List<String>) jsonTree[1];
-			List<String> pathList = (List<String>) jsonTree[2];
-
-			Parameter param = null;
-			for (int i = 0;i < paramList.size();i++) {
-				param = new Parameter(paramList.get(i), "", valueMap.get(paramList.get(i)), pathList.get(i), typeList.get(i));				
-				param.setInterfaceInfo((new InterfaceInfo()));
-				param.getInterfaceInfo().setInterfaceId(interfaceId);
-				parameterService.save(param);
-			}
-			jsonMap.put("returnCode", ReturnCodeConsts.SUCCESS_CODE);
-		} 
+		Set<Parameter> params = parseUtil.importMessageToParameter(paramsJson);
 		
+		if (params == null || params.size() == 0) {
+			jsonMap.put("returnCode", ReturnCodeConsts.INTERFACE_ILLEGAL_TYPE_CODE);
+			
+			return SUCCESS;
+		}
+		
+		InterfaceInfo info = interfaceInfoService.get(interfaceId);	
+		
+		if (info != null) {
+			info.getParameters().addAll(params);			
+			interfaceInfoService.save(info);
+		}
+		
+		jsonMap.put("returnCode", ReturnCodeConsts.SUCCESS_CODE);
 		return SUCCESS;
 	}
 	
 	
 	/***************************************GET-SET****************************************************/
+	
+	public void setMessageType(String messageType) {
+		this.messageType = messageType;
+	}
 	
 	public void setParamsJson(String paramsJson) {
 		this.paramsJson = paramsJson;

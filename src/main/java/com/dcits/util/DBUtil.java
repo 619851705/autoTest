@@ -8,6 +8,8 @@ import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 
+import com.dcits.business.system.bean.DataDB;
+
 /**
  * 仅用于测试过程中查询数据的数据库连接工具类
  * @author xuwangcheng
@@ -78,7 +80,7 @@ public class DBUtil {
 	 * @param con
 	 * @throws SQLException
 	 */
-    public static void close(Connection con) throws SQLException {
+	public static void close(Connection con) throws SQLException {
 		if (con!=null) {
 			 try {
 					con.close();
@@ -93,17 +95,19 @@ public class DBUtil {
     /**
      * 传入数据库连接和要执行的sql语句
      * 得到返回值,多个值只取第一个,没有值返回null
-     * @param con 数据库连接
+     * @param dataDb对象
      * @param sqlStr 需要执行的sql语句
      * @return
      * @throws SQLException 
      */
-    public static String getDBData(Connection con, String sqlStr) throws SQLException {
+    public static String getDBData(DataDB dbInfo, String sqlStr) {
     	String returnStr = null;
     	PreparedStatement ps = null;
-    	ResultSet rs = null;
+    	ResultSet rs = null;  	
+    	Connection conn = null;
     	try {
-    		ps = con.prepareStatement(sqlStr);
+    		conn = getConnection(dbInfo.getDbType(), dbInfo.getDbUrl(), dbInfo.getDbName(), dbInfo.getDbUsername(), dbInfo.getDbPasswd());
+    		ps = conn.prepareStatement(sqlStr);    		
     		rs = ps.executeQuery();
     		while (rs.next()) {
     			//只取第一条记录
@@ -111,14 +115,13 @@ public class DBUtil {
     			break;
     		}   
     		
-		} catch (SQLException e) {			
+		} catch (SQLException | ClassNotFoundException e) {			
 			LOGGER.error("查询语句执行失败[" + sqlStr + "]", e);
 			e.printStackTrace();
-			throw new SQLException();
 			
 		} finally {
 			try {
-				close(con);
+				close(conn);
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

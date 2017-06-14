@@ -11,7 +11,15 @@ import org.apache.struts2.json.annotations.JSON;
  * TestData entity. @author MyEclipse Persistence Tools
  */
 
-public class TestData implements Serializable{
+/**
+ * 
+ * 测试场景拥有的测试数据
+ * @author xuwangcheng
+ * @version 1.0.0.0,2017.5.5
+ *
+ */
+
+public class TestData implements Serializable {
 
 
     /**
@@ -22,9 +30,29 @@ public class TestData implements Serializable{
 
      private Integer dataId;
      private MessageScene messageScene;
+     
+     /**
+      * json串存储数据,节点路径名作为key,数据作为value
+      */
      private String paramsData;
+     
+     /**
+      * 可用状态
+      * <br>0-可用  1-不可用/已使用
+      */
      private String status;
+     
+     /**
+      * 数据标记
+      * <br>用户自定义,根据接口、报文、场景的不同有所不同
+      * <br>不允许重复
+      */
      private String dataDiscr;
+     
+     /**
+      * 通过处理将数据和原始报文结合之后的报文内容
+      */
+     private String dataJson;
 
 
     // Constructors
@@ -51,7 +79,17 @@ public class TestData implements Serializable{
         return this.dataId;
     }
     
-    public String getDataDiscr() {
+    public String getDataJson() {
+		return dataJson;
+	}
+
+
+	public void setDataJson(String dataJson) {
+		this.dataJson = dataJson;
+	}
+
+
+	public String getDataDiscr() {
 		return dataDiscr;
 	}
 
@@ -89,13 +127,6 @@ public class TestData implements Serializable{
     public void setStatus(String status) {
         this.status = status;
     }
-   
-
-
-
-
-
-
 
 
 }

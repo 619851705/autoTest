@@ -68,6 +68,10 @@ public class Parameter implements Serializable {
     public Parameter() {
     }
 
+    public Parameter(Integer parameterId) {
+    	this.parameterId = parameterId;
+    };
+    
     public Parameter(Integer parameterId, String type) {
     	this.parameterId = parameterId;
     	this.type = type;
@@ -96,11 +100,12 @@ public class Parameter implements Serializable {
     public Integer getParameterId() {
         return this.parameterId;
     }
-    
+    @JSON(serialize=false)
     public Set<ComplexParameter> getComplexParameters() {
 		return complexParameters;
 	}
-
+    
+    
 	public void setComplexParameters(Set<ComplexParameter> complexParameters) {
 		this.complexParameters = complexParameters;
 	}

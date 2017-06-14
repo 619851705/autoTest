@@ -63,7 +63,8 @@ public interface BaseService<T> {
 	 * @param orderType 排序方式
 	 * @param searchValue 全局搜索条件
 	 * @param dataParams 当前展示的所有字段名
+	 * @param filterCondition 自定义的查询条件
 	 * @return 符合分页条件的分页模型实例
 	 */
-	 PageModel<T> findByPager(int dataNo, int pageSize,String orderDataName,String orderType,String searchValue,List<String> dataParams);
+	 PageModel<T> findByPager(int dataNo, int pageSize,String orderDataName,String orderType,String searchValue,List<String> dataParams,String ...filterCondition);
 }

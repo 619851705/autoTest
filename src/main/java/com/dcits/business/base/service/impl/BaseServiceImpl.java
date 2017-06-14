@@ -64,9 +64,9 @@ public class BaseServiceImpl<T> implements BaseService<T>{
 	}
 
 	@Override
-	public PageModel<T> findByPager(int dataNo, int pageSize, String orderDataName, String orderType, String searchValue, List<String> dataParams) {
+	public PageModel<T> findByPager(int dataNo, int pageSize, String orderDataName, String orderType, String searchValue, List<String> dataParams,String ...filterCondition) {
 		// TODO Auto-generated method stub
-		return baseDao.findByPager(dataNo, pageSize, orderDataName, orderType, searchValue, dataParams);
+		return baseDao.findByPager(dataNo, pageSize, orderDataName, orderType, searchValue, dataParams, filterCondition);
 	}
 	
 	

@@ -90,28 +90,51 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 		return count;
 	}
 
-	public PageModel<T> findByPager(int dataNo, int pageSize, String orderDataName, String orderType, String searchValue, List<String> dataParams) {
+	public PageModel<T> findByPager(int dataNo, int pageSize, String orderDataName, String orderType, String searchValue, List<String> dataParams, String ...filterCondition) {
 		// TODO Auto-generated method stub
 		PageModel<T> pm = new PageModel<T>(orderDataName, orderType, searchValue, dataParams, dataNo, pageSize);
 		
 		String hql = "from " + clazz.getSimpleName();
 		
-		//增加搜索条件
-		if (searchValue != "") {
+		if (searchValue != "" || filterCondition != null && filterCondition.length > 0) {
 			hql += " where ";
+		}
+		
+		//增加搜索条件
+		if (searchValue != "") {			
 			int i = 1;
 			for (String s : dataParams) {
-				hql += s + " like '%" + searchValue + "%'";
 				i++;
+				if (s.isEmpty()) {
+					continue;
+				}
+				hql += s + " like '%" + searchValue + "%'";				
 				if (i <= dataParams.size()) {
 					hql += " or ";
 				}
 			}
 			
 		}
-
+		
+		//增加自定义的条件
+		if (filterCondition != null && filterCondition.length > 0) {
+			if (searchValue != "") {
+				hql += " and ";
+			}
+			
+			
+			int i = 1;
+			for (String s : filterCondition) {
+				hql += s;
+				i++;
+				if (i <= filterCondition.length) {
+					hql += " and ";
+				}
+			}
+		}
+		
 		//增加排序
-		if (orderDataName != "") {
+		if (!orderDataName.isEmpty()) {
 			hql += " order by " + orderDataName + " " + orderType;
 		}
 	

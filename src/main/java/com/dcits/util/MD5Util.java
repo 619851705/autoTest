@@ -3,8 +3,6 @@ package com.dcits.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import com.dcits.business.message.bean.Message;
-
 /**
  * MD5加密
  * @author dcits
@@ -43,6 +41,5 @@ public class MD5Util {
 	
 	public static void main(String[] args) throws Exception {
 		System.out.print(MD5Util.code("111111"));
-		java.util.TreeSet<Message> ts = new java.util.TreeSet<Message>();
 	}
 }

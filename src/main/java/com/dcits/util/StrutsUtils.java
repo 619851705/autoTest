@@ -12,6 +12,7 @@ import org.apache.struts2.ServletActionContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import com.dcits.annotation.util.AnnotationUtil;
 import com.dcits.business.system.bean.GlobalSetting;
 import com.opensymphony.xwork2.ActionContext;
 
@@ -70,7 +71,7 @@ public class StrutsUtils {
 	 * <br>dataParams List&lt;String&gt; 当前所有的展示字段
 	 */
 	@SuppressWarnings("unchecked")
-	public static Map<String,Object> getDTParameters() {
+	public static Map<String,Object> getDTParameters(Class clazz) {
 		
 		Map<String,Object> returnMap = new HashMap<String,Object>();		
 		//排序的那一列位置
@@ -81,20 +82,29 @@ public class StrutsUtils {
 		String searchValue = ServletActionContext.getRequest().getParameter("search[value]");
 		//需要排序的那一列属性名称
 		String orderDataName = ServletActionContext.getRequest().getParameter("columns["+orderColumnNum+"][data]");
-		
+		orderDataName = AnnotationUtil.getRealColumnName(clazz, orderDataName, 1);
 		//获取当前所有的展示字段
+		//必须是当前实体类所拥有的的字段，不考虑其他情况
 		Map<String, String[]> params = ServletActionContext.getRequest().getParameterMap();
 		List<String> dataParams = new ArrayList<String>();
-		
+
 		for (Map.Entry<String, String[]> entry:params.entrySet()) {
 			if (entry.getKey().indexOf("][data]") != -1) {
 				String a = (params.get(entry.getKey()))[0];
-				if (!a.equals("")) {
-					dataParams.add(a);
+				
+				if (a.isEmpty()) {
+					continue;
 				}
+				
+				a = AnnotationUtil.getRealColumnName(clazz, a, 0);
+								
+				dataParams.add(a);
+
 			}
 		}
+		
 		returnMap.put("orderDataName", orderDataName);
+				
 		returnMap.put("orderType", orderType);
 		returnMap.put("searchValue", searchValue);
 		returnMap.put("dataParams", dataParams);
@@ -144,5 +154,18 @@ public class StrutsUtils {
 		ActionContext ac = ActionContext.getContext();
         ServletContext sc = (ServletContext) ac.get(ServletActionContext.SERVLET_CONTEXT);
         return sc.getRealPath("");
+	}
+	
+	/**
+	 * 获取spring容器中指定bean
+	 * @param beanName
+	 * @return
+	 */
+	public static Object getSpringBean(String beanName) {
+		//取得appliction上下文
+		ApplicationContext ctx = getApplicationContext();
+		//取得指定bean
+		Object srpingBean =ctx.getBean(beanName);
+		return srpingBean;
 	}
 }

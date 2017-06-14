@@ -25,6 +25,10 @@
         <property name="requestUrlReal" type="java.lang.String">
             <column name="request_url_real" length="65535" />
         </property>
+        <property name="interfaceProtocol" type="java.lang.String">
+            <column name="interface_protocol" length="100" />
+        </property>
+        
         <property name="interfaceType" type="java.lang.String">
             <column name="interface_type" length="2" />
         </property>
@@ -38,7 +42,7 @@
             <column name="last_modify_user" length="120" />
         </property>
         
-        <set name="parameters" cascade="all" lazy="true" inverse="true">
+        <set name="parameters" cascade="all" lazy="true">
         	<key column="interface_id"></key>
         	<one-to-many class="com.dcits.business.message.bean.Parameter"/>
         </set>

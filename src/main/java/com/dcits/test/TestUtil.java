@@ -1,14 +1,19 @@
 package com.dcits.test;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 
 import com.dcits.business.message.bean.ComplexParameter;
 import com.dcits.business.message.bean.Parameter;
+import com.dcits.business.message.bean.TestConfig;
 import com.dcits.coretest.message.parse.MessageParse;
+import com.dcits.coretest.message.protocol.HTTPTestClient;
 import com.dcits.util.message.XmlUtil;
 
 /**
@@ -91,9 +96,9 @@ public class TestUtil {
 		/*complexParam9.addChildComplexParameter(complexParam5);
 		complexParam9.addChildComplexParameter(complexParam6);*/
 		
-		System.out.println(MessageParse.getParseInstance("json").depacketizeMessageToString(complexParam10));
-		System.out.println(MessageParse.getParseInstance("xml").depacketizeMessageToString(complexParam10));
-		System.out.println(MessageParse.getParseInstance("url").depacketizeMessageToString(complexParam10));
+		System.out.println(MessageParse.getParseInstance("json").depacketizeMessageToString(complexParam10, null));
+		System.out.println(MessageParse.getParseInstance("xml").depacketizeMessageToString(complexParam10, null));
+		System.out.println(MessageParse.getParseInstance("url").depacketizeMessageToString(complexParam10, null));
 	}
 	
 	@Test
@@ -104,5 +109,71 @@ public class TestUtil {
 		System.out.println(map.toString());
 		ObjectMapper mapper = new ObjectMapper();
 		System.out.println(mapper.readValue(jsonStr, Map.class));
+	}
+	
+	@Test
+	public void myHttpTest() throws Exception {
+		String host = "http://www.xuwangcheng.cn/AutoTest/mock/NewTest";
+		String body = "{\"id\": 1}";
+		String callParameter = "{\"header\":{\"Content-type\":\"application/json;charset=UTF-8\"},\"method\":\"post\"}";
+		TestConfig config = new TestConfig();
+		config.setConnectTimeOut(6000);
+		config.setReadTimeOut(6000);
+		
+		HTTPTestClient client = new HTTPTestClient();
+		Map<String, String> map = client.sendRequest(host, body, callParameter, config);
+		client.closeConnection();
+		System.out.println(map.toString());
+		Map<String, String> map1 = client.sendRequest(host, body, callParameter, config);
+		System.out.println(map1.toString());
+		client.closeConnection();
+		
+		host = "https://www.xuwangcheng.cn/dcits";
+		body = "";
+		callParameter = "{\"method\":\"get\"}";
+		
+		Map<String, String> map2 = client.sendRequest(host, body, callParameter, config);
+		System.out.println(map2.toString());
+		client.closeConnection();
+		
+		Map<String, String> map3 = client.sendRequest(host, body, callParameter, config);
+		System.out.println(map3.toString());
+		client.closeConnection();
+	}
+	
+	@Test
+	public void Test2 () {
+		String[] ab = "cc,aa,dd,bb,ff,ee".split(",");
+		
+		Arrays.sort(ab);
+		StringBuilder str = new StringBuilder();
+		
+		for (int i = 0;i < ab.length;i++) {
+			str.append(ab[i]);
+			
+			if (i <  ab.length - 1) {
+				str.append(",");
+			}
+		}
+		
+		System.out.println(str.toString());
+	}
+	
+	@Test
+	public void test3 () {
+		String ab = "sada#dsadasda#dsaww";
+		String s = "#(.*)#";
+		Pattern pattern = Pattern.compile(s);
+		Matcher matcher = pattern.matcher(ab);
+		
+		while (matcher.find()) {
+			System.out.println(matcher.group());
+			System.out.println(matcher.group(1));
+		}
+	}
+	
+	@Test
+	public void test4() {
+		
 	}
 }	

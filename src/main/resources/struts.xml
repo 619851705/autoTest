@@ -23,7 +23,7 @@
     			<!-- 异常处理 -->
     			<interceptor-ref name="defaultStack">  
   					<param name="exception.logEnabled">true</param>  
-  					<param name="exception.logLevel">error</param>  
+  					<param name="exception.logLevel">debug</param>  
 				</interceptor-ref>
     		</interceptor-stack>
 			<!-- 声明自定义拦截器 接口权限相关-->
@@ -160,6 +160,57 @@
 			<interceptor-ref name="myPrepareInterceptorsStack"></interceptor-ref>
 			<result type="json">
 				<param name="root">jsonMap</param>
+			</result>
+		</action>
+		
+		<!-- 报文场景 -->
+		<action name="scene-*" class="messageSceneAction" method="{1}">
+			<interceptor-ref name="callMethodInterceptor"></interceptor-ref>
+			<interceptor-ref name="myPrepareInterceptorsStack"></interceptor-ref>
+			<result type="json">
+				<param name="root">jsonMap</param>
+			</result>
+		</action>
+		
+		<!-- 验证规则 -->
+		<action name="validate-*" class="sceneValidateRuleAction" method="{1}">
+			<interceptor-ref name="callMethodInterceptor"></interceptor-ref>
+			<interceptor-ref name="myPrepareInterceptorsStack"></interceptor-ref>
+			<result type="json">
+				<param name="root">jsonMap</param>
+			</result>
+		</action>
+		
+		<!-- 接口测试 -->
+		<action name="test-*" class="autoTestAction" method="{1}">
+			<interceptor-ref name="callMethodInterceptor"></interceptor-ref>
+			<interceptor-ref name="myPrepareInterceptorsStack"></interceptor-ref>
+			<result type="json">
+				<param name="root">jsonMap</param>
+			</result>
+		</action>
+		
+		<!-- 测试数据 -->
+		<action name="data-*" class="testDataAction" method="{1}">
+			<interceptor-ref name="callMethodInterceptor"></interceptor-ref>
+			<interceptor-ref name="myPrepareInterceptorsStack"></interceptor-ref>
+			<result type="json">
+				<param name="root">jsonMap</param>
+			</result>
+			<result type="json" name="check">
+				<param name="root">checkNameFlag</param>
+			</result>
+		</action>
+		
+		<!-- 测试集 -->
+		<action name="set-*" class="testSetAction" method="{1}">
+			<interceptor-ref name="callMethodInterceptor"></interceptor-ref>
+			<interceptor-ref name="myPrepareInterceptorsStack"></interceptor-ref>
+			<result type="json">
+				<param name="root">jsonMap</param>
+			</result>
+			<result type="json" name="check">
+				<param name="root">checkNameFlag</param>
 			</result>
 		</action>
 		

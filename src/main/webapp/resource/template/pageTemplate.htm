@@ -18,7 +18,7 @@
 <!-- 文字图标按钮模板 -->
 <script id="btn-text-template" type="text/x-handlebars-template">
     {{#each this}}
-		<a href="javascript:;" class="btn btn-{{type}} radius size-{{size}} {{markClass}}"><i class="Hui-iconfont">{{{iconFont}}}</i> {{name}}</a>
+		<a href="javascript:;" class="btn btn-{{type}} radius size-{{size}} {{markClass}}" id="{{id}}"><i class="Hui-iconfont">{{{iconFont}}}</i> {{name}}</a>
     {{/each}}
 </script>
 
@@ -33,7 +33,7 @@
 <!-- 图标按钮模板 -->
 <script id="btn-icon-template" type="text/x-handlebars-template">
     {{#each this}}
-		<a style="text-decoration:none" class="ml-5 {{markClass}}" href="javascript:;" title="{{title}}"><i class="Hui-iconfont">{{{iconFont}}}</i></a> 
+		<a style="text-decoration:none" class="ml-5 {{markClass}}" href="javascript:;" title="{{title}}" id="{{id}}"><i class="Hui-iconfont">{{{iconFont}}}</i></a> 
     {{/each}}
 </script>
    
@@ -70,7 +70,7 @@
 				{{/if}}	
 				{{#if button}}						
 				{{#each button}}					
-					<input type="button"  class="btn btn-{{style}} radius {{markClass}}"  value="{{value}}"/>{{#if embellish}}{{{embellish}}}{{/if}}					
+					<input type="button"  class="btn btn-{{style}} radius {{markClass}}"  value="{{value}}" id="{{name}}"/>{{#if embellish}}{{{embellish}}}{{/if}}					
 				{{/each}}
 				{{/if}}	
 				{{#if textarea}}			

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.struts2.json.annotations.JSON;
 
+import com.dcits.annotation.FieldNameMapper;
 import com.dcits.business.user.bean.User;
 
 public class TestReport implements Serializable{
@@ -25,7 +26,9 @@ public class TestReport implements Serializable{
 	private Timestamp finishTime;
 	private User user;
 	
+	@FieldNameMapper("user.realName")
 	private String createUserName;
+	
 	
 	private String setName;
 	

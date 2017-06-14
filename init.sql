@@ -116,6 +116,7 @@ interface_cn_name varchar(120),
 request_url_mock text,
 request_url_real text,
 interface_type char(2),
+interface_protocol varchar(50),
 create_time datetime,
 status char(1),
 user_id int,
@@ -126,7 +127,7 @@ alter table at_interface_info add constraint at_interface_fk_user_id foreign key
 
 create table at_parameter(
 parameter_id int auto_increment primary key,
-parameter_identify varchar(120) not null,
+parameter_identify varchar(120),
 parameter_name varchar(120),
 default_value varchar(256),
 path varchar(256),
@@ -134,6 +135,11 @@ type varchar(50),
 interface_id int
 );
 alter table at_parameter add constraint at_parameter_fk_interface_id foreign key(interface_id) REFERENCES at_interface_info(interface_id);
+
+INSERT INTO `at_parameter` (`parameter_id`, `parameter_identify`, `parameter_name`, `default_value`, `type`, `path`, `interface_id`) VALUES (1, '', '', '', 'Object', '', NULL);
+INSERT INTO `at_parameter` (`parameter_id`, `parameter_identify`, `parameter_name`, `default_value`, `type`, `path`, `interface_id`) VALUES (2, '', '', '', 'Array_array', '', NULL);
+INSERT INTO `at_parameter` (`parameter_id`, `parameter_identify`, `parameter_name`, `default_value`, `type`, `path`, `interface_id`) VALUES (3, '', '', '', 'Array_map', '', NULL);
+
 
 
 create table at_complex_parameter(
@@ -149,9 +155,12 @@ alter table at_complex_parameter add constraint at_complex_parameter_fk_next_com
 create table at_message(
 message_id int auto_increment primary key,
 message_name varchar(255),
+message_type varchar(100),
 interface_id int,
 parameter_id int,
+complex_parameter_id int,
 parameter_json longtext,
+call_parameter text,
 request_url text,
 user_id int,
 create_time datetime,
@@ -161,7 +170,7 @@ last_modify_user varchar(120)
 alter table at_message add constraint at_message_fk_interface_id foreign key(interface_id) references at_interface_info(interface_id);
 alter table at_message add constraint at_message_fk_parameter_id foreign key(parameter_id) references at_parameter(parameter_id);
 alter table at_message add constraint at_message_fk_user_id foreign key(user_id) references at_user(user_id);
-
+alter table at_message add constraint at_message_fk_complex_parameter_id foreign key(complex_parameter_id) references at_complex_parameter(id);
 
 create table at_message_scene(
 message_scene_id int auto_increment primary key,

@@ -57,7 +57,7 @@ public class RoleAction extends BaseAction<Role> {
 			r.setOiNum();
 		}
 		
-		return o;
+		return roles;
 	}
 	
 	/**

@@ -24,7 +24,7 @@
 </head>
 <body>
 <div id="list-page">
-<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 接口自动化 <span class="c-gray en">&gt;</span> 场景管理 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:refreshTable();" title="刷新"><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 接口自动化<span class="c-gray en">&gt;</span> 报文管理 <span class="c-gray en">&gt;</span> 场景管理 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:refreshTable();" title="刷新"><i class="Hui-iconfont">&#xe68f;</i></a></nav>
 <div class="page-container">
     <div class="cl pd-5 bg-1 bk-gray mt-0"> <span class="l" id="btn-tools"></span> </div>
     <div class="mt-20" id="div-table-container">
@@ -32,7 +32,7 @@
             <thead>
             <tr class="text-c" id="table-thead">  
             <th style="width:50px"><input type="checkbox"></th>
-    		<th style="width:80px">ID</th>          	
+    		<th style="width:80px;">ID</th>          	
             </tr>
             </thead>
             <tbody>
@@ -41,8 +41,41 @@
     </div>
 </div>
 </div>
+<div id="scene-test-page"  style="display: none;"></div>
+<div id="validate-full-json-page"  style="display: none;"></div>
+<div id="validate-keyword-page"  style="display: none;"></div>
 <div id="edit-page"  style="display: none;"></div>
 <div id="template-page" style="display: none;"></div>
+<script id="scene-test-result" type="text/x-handlebars-template">
+	<table class="table table-bg">
+		<tr>
+			<td>标记:</td>
+			<td><span style="color:{{color}};">{{flag}}</span></td>
+		</tr>
+		<tr>
+			<td>耗时:</td>
+			<td>{{useTime}}ms</td>
+		</tr>
+		<tr>
+			<td>状态码:</td>
+			<td>{{statusCode}}</td>
+		</tr>
+		<tr>
+			<td>返回:</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan="2"><textarea style="height: 180px;" class="textarea radius">{{responseMessage}}</textarea></td>
+		</tr>
+		<tr>
+			<td>测试备注:</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan="2"><textarea style="height: 180px;" class="textarea radius">{{mark}}</textarea></td>
+		</tr>
+	</table>
+</script>
 <script type="text/javascript" src="../../libs/jquery/1.9.1/jquery.js"></script>
 <script type="text/javascript" src="../../libs/layer/2.1/layer.js"></script>
 <script type="text/javascript" src="../../libs/jquery.validation/1.14.0/jquery.validate.min.js"></script> 

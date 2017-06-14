@@ -17,7 +17,7 @@ var MESSAGE_FORMAT_URL = "message-format";//格式json串
 var MESSAGE_VALIDATE_JSON_URL = "message-validateJson";//报文json串验证
 
 var templateParams = {
-		tableTheads:["接口","报文名", "创建时间", "状态", "创建用户", "最后修改", "入参", "场景", "操作"],
+		tableTheads:["接口","报文名", "类型", "创建时间", "状态", "创建用户", "最后修改", "入参", "场景", "操作"],
 		btnTools:[{
 			type:"primary",
 			size:"M",
@@ -48,6 +48,23 @@ var templateParams = {
 				name:"messageName"
 				}]
 		},
+		{	
+			required:true,
+			label:"报文类型",  			
+			select:[{	
+				name:"messageType",
+				option:[{
+					value:"json",
+					text:"JSON"
+				},{
+					value:"xml",
+					text:"XML"
+				},{
+					value:"url",
+					text:"URL"
+				}]
+				}]
+		},
 		{
 			name:"interfaceInfo.interfaceId",
 		},
@@ -69,7 +86,7 @@ var templateParams = {
 				markClass:"format-parameter-json"
 			}],
 			textarea:[{
-				placeholder:"输入报文的JSON串"
+				placeholder:"输入报文入参"
 			}]
 		},
 		{
@@ -135,12 +152,19 @@ var columnsSetting = [
                          "className":"ellipsis",
                		     "data":"interfaceName",
                          "render":CONSTANT.DATA_TABLES.COLUMNFUN.ELLIPSIS
-                         },
+                       },                      
                        {
                       	"className":"ellipsis",
             		    "data":"messageName",
                       	"render":CONSTANT.DATA_TABLES.COLUMNFUN.ELLIPSIS
                       	},
+                      	{
+                     	   "data":null,
+                     	   "render":function(data) {
+                     		   return labelCreate((data.messageType).toUpperCase());
+                     	   }
+                         
+                        },
                        {
                     	"className":"ellipsis",
               		    "data":"createTime",
@@ -221,13 +245,14 @@ var eventList = {
 		},
 		".show-scenes":function(){
 			var data = table.row( $(this).parents('tr') ).data();			
-			currIndex = layer_show(data.messageName + "-场景列表", "messageScene.html?messageId=" + data.messageId
+			currIndex = layer_show(data.interfaceName + "-" + data.messageName + "-场景列表", "messageScene.html?messageId=" + data.messageId
+					+ "&interfaceName=" + data.interfaceName + "&messageName=" + data.messageName
 					, "" , "", 2);
 			layer.full(currIndex);
 		},
 		".add-object":function() {
 			publish.renderParams.editPage.modeFlag = 0;					
-			currIndex = layer_show("增加报文", editHtml, "800", "450",1);
+			currIndex = layer_show("增加报文", editHtml, "800", "500",1);
 			//layer.full(index);
 			publish.init();			
 		},
@@ -241,39 +266,45 @@ var eventList = {
 		},
 		".message-edit":function() {
 			var data = table.row( $(this).parents('tr') ).data();
+			messageId = data.messageId;
 			publish.renderParams.editPage.modeFlag = 1;
-			publish.renderParams.editPage.objId = data.messageId;
-			layer_show("编辑报文信息", editHtml, "850", "610",1);
+			publish.renderParams.editPage.objId = messageId;
+			layer_show("编辑报文信息", editHtml, "850", "650",1);
 			publish.init();	
 		},
 		".validate-parameter-json":function() {
 			var jsonStr = $(".textarea").val();
+			var messageType = $("#messageType").val();
 			if(jsonStr == null || jsonStr == "") {
 				layer.msg('你还没有输入任何内容',{icon:5,time:1500});
 				return false;
 			}
-			$.post(MESSAGE_VALIDATE_JSON_URL,{parameterJson:jsonStr,interfaceId:interfaceId},function(data){
+			$.post(MESSAGE_VALIDATE_JSON_URL,{parameterJson:jsonStr,interfaceId:interfaceId, messageType:messageType, messageId:messageId},function(data){
 				if(data.returnCode==0){
 					layer.msg('验证通过,请执行下一步操作',{icon:1, time:1500});
 					$("#parameterJson").val(jsonStr);
-				}else if(data.returnCode == 912){
-					layer.msg('JSON格式错误,请检查',{icon:5, time:1500});
 				}else{
-					layer.msg(data.msg,{icon:5, time:1500});
+					if (data.msg == null) {
+						data.msg = "解析报文失败,请检查!";
+					}
+					layer.alert(data.msg,{icon:5});
 				}
 			});
 		},
 		".format-parameter-json":function(){
 			var jsonStr = $(".textarea").val();
+			var messageType = $("#messageType").val();
 			if(jsonStr == null || jsonStr == "") {
 				layer.msg('你还没有输入任何内容',{icon:5,time:1500});
 				return false;
 			}
-			$.post(MESSAGE_FORMAT_URL,{parameterJson:jsonStr},function(data) {
+			$.post(MESSAGE_FORMAT_URL,{parameterJson:jsonStr, messageType:messageType},function(data) {
 				if(data.returnCode == 0){
 					$(".textarea").val(data.returnJson);
-				} else {
-					layer.msg(data.msg,{icon:5,time:1500});
+				} else if(data.returnCode == 912) {
+					layer.msg("格式化失败：不是指定的格式!",{icon:5,time:1500});
+				}else {
+					layer.alert(data.msg,{icon:5});
 				}
 			});
 		}
@@ -324,7 +355,7 @@ var mySetting = {
 		listPage:{
 			tableObj:".table-sort",
 			columnsSetting:columnsSetting,
-			columnsJson:[0, 8, 9, 10]
+			columnsJson:[0, 9, 10, 11]
 		},
 		templateParams:templateParams		
 	};

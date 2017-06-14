@@ -73,11 +73,21 @@ public class SystemConsts {
 	 */
 	public static final String RESULT_NON_EXISTENT_OP = "opnotfound"; 
 	
+	//特殊参数的id
+	
 	public static final Integer PARAMETER_ARRAY_IN_ARRAY_ID = 2;
 	
 	public static final Integer PARAMETER_MAP_IN_ARRAY_ID = 3;
 	
 	public static final Integer PARAMETER_OBJECT_ID = 1;
+	
+	//ApplicationMap中指定属性名
+	
+	public static final String APPLICATION_ATTRIBUTE_QUERY_DB = "queryDb";
+	
+	public static final String APPLICATION_ATTRIBUTE_WEB_SETTING = "settingMap";
+	
+	public static final String APPLICATION_ATTRIBUTE_OPERATION_INTERFACE = "ops";
 	
 
 }

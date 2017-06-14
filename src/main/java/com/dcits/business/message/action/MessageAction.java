@@ -1,16 +1,15 @@
 package com.dcits.business.message.action;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import com.dcits.business.base.action.BaseAction;
-import com.dcits.business.base.bean.PageModel;
 import com.dcits.business.message.bean.ComplexParameter;
 import com.dcits.business.message.bean.Message;
 import com.dcits.business.message.bean.Parameter;
@@ -21,9 +20,7 @@ import com.dcits.business.message.service.ParameterService;
 import com.dcits.business.user.bean.User;
 import com.dcits.constant.ReturnCodeConsts;
 import com.dcits.coretest.message.parse.MessageParse;
-import com.dcits.util.PracticalUtils;
 import com.dcits.util.StrutsUtils;
-import com.dcits.util.message.JsonUtil;
 
 /**
  * 接口报文Action
@@ -36,14 +33,10 @@ import com.dcits.util.message.JsonUtil;
 @Scope("prototype")
 public class MessageAction extends BaseAction<Message>{
 
-	private static final long serialVersionUID = 1L;	
-	
-	private static final Logger LOGGER = Logger.getLogger(MessageAction.class.getName());
+	private static final long serialVersionUID = 1L;		
 	
 	/**报文对应的接口id*/
 	private Integer interfaceId;
-	
-	private String jsonStr;
 	
 	private MessageService messageService;
 	
@@ -61,48 +54,29 @@ public class MessageAction extends BaseAction<Message>{
 	private ComplexParameterService complexParameterService;
 	
 	
-	
-	/**
-	 * 分页获取指定接口下的报文列表
-	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public String list() {
-
-		Map<String,Object>  dt = StrutsUtils.getDTParameters();
-		PageModel<Message> pu = null;
-		if (interfaceId == null) {
-			pu = messageService.findByPager(start, length
-					, (String)dt.get("orderDataName"), (String)dt.get("orderType")
-					, (String)dt.get("searchValue"), (List<String>)dt.get("dataParams"));
-		} else {
-			pu = messageService.findByPager(start, length
-					, (String)dt.get("orderDataName"), (String)dt.get("orderType")
-					, (String)dt.get("searchValue"), (List<String>)dt.get("dataParams"), interfaceId);
-		}		
-		
-		jsonMap.put("draw", draw);
-		jsonMap.put("data", processListData(pu.getDatas()));
-		jsonMap.put("recordsTotal", pu.getRecordCount());		
-		jsonMap.put("recordsFiltered", pu.getRecordCount());
-		
-		if (!((String)dt.get("searchValue")).equals("")) {
-			jsonMap.put("recordsFiltered", pu.getDatas().size());
+	public String[] prepareList() {
+		// TODO Auto-generated method stub
+		if (this.interfaceId != null) {
+			this.filterCondition = new String[]{"interfaceInfo.interfaceId=" + interfaceId};
 		}
 		
-		jsonMap.put("returnCode", ReturnCodeConsts.SUCCESS_CODE);
-		
-		return SUCCESS;
+		return this.filterCondition;
 	}
 
 
+
+
 	/**
-	 * 格式化报文的入参json串
+	 * 格式化报文的入参
 	 * @return
 	 */
 	public String format() {
-		String returnJson = PracticalUtils.formatJsonStr(model.getParameterJson());		
-		jsonMap.put("returnCode", ReturnCodeConsts.INTERFACE_ILLEGAL_JSON_CODE);
+		MessageParse parseUtil = MessageParse.getParseInstance(model.getMessageType());		
+		
+		String returnJson = parseUtil.messageFormatBeautify(model.getParameterJson());
+		
+		jsonMap.put("returnCode", ReturnCodeConsts.INTERFACE_ILLEGAL_TYPE_CODE);
 		if (returnJson != null) {
 			jsonMap.put("returnCode", ReturnCodeConsts.SUCCESS_CODE);
 			jsonMap.put("returnJson", returnJson);
@@ -117,50 +91,26 @@ public class MessageAction extends BaseAction<Message>{
 	 * 判断依据是：报文中的所有节点是否都存在于对应接口的参数列表中
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public String validateJson() {
 		
-		List<String> parameters = null;
-		try {
-			parameters = (List<String>) JsonUtil.getJsonList(model.getParameterJson(), 1);
-		} catch (Exception e) {
-			e.printStackTrace();
-			LOGGER.error("解析json失败:" + model.getParameterJson(), e);
-			jsonMap.put("returnCode", ReturnCodeConsts.SYSTEM_ERROR_CODE);
-			jsonMap.put("msg", "系统解析json出现错误,请稍后再试 !");
+		MessageParse parseUtil = MessageParse.getParseInstance(model.getMessageType());
+		
+		if (interfaceId == null) {
+			interfaceId = (messageService.get(model.getMessageId())).getInterfaceInfo().getInterfaceId();
+		}
+		
+		List<Parameter> interfaceParams = parameterService.findByInterfaceId(interfaceId);
+		
+		String resultFlag = parseUtil.checkParameterValidity(interfaceParams, model.getParameterJson());
+		
+		if ("true".equals(resultFlag)) {
+			jsonMap.put("returnCode", ReturnCodeConsts.SUCCESS_CODE);//验证通过
 			return SUCCESS;
 		}
-
-		List<Parameter> ps = parameterService.findByInterfaceId(interfaceId);
-		jsonMap.put("returnCode", ReturnCodeConsts.INTERFACE_ILLEGAL_JSON_CODE);//json格式不正确
 		
-		if (parameters != null) {
-			boolean paramCorrectFlag = false;
-			boolean allCorrectFlag = true;
-			String msg = "入参节点:";
-			for (String name:parameters) {
-				for (Parameter p:ps) {
-					if (p.getParameterIdentify().equalsIgnoreCase(name)) {
-						paramCorrectFlag = true;
-					}
-				}
-				if (!paramCorrectFlag) {
-					allCorrectFlag = false;
-					msg += "[" + name + "] ";
-				} else {
-					paramCorrectFlag = false;
-				}
-			}
-			
-			jsonMap.put("returnCode", ReturnCodeConsts.SUCCESS_CODE);//验证通过
-			if (!allCorrectFlag) {				
-				msg += "在接口中未定义,请检查!";
-				jsonMap.put("returnCode", ReturnCodeConsts.INTERFACE_MESSAGE_ERROR_JSON_CODE);//验证不通过
-				jsonMap.put("msg", msg);//验证不通过
-			}			
-		}
-		
-		return SUCCESS;
+		jsonMap.put("returnCode", ReturnCodeConsts.MESSAGE_VALIDATE_ERROR);//验证不通过		
+		jsonMap.put("msg", resultFlag);
+		return SUCCESS;		
 	}
 	
 	/**
@@ -168,12 +118,19 @@ public class MessageAction extends BaseAction<Message>{
 	 */
 	@Override
 	public String edit() {
+
+		MessageParse parseUtil = MessageParse.getParseInstance(model.getMessageType());
 		
-		String returnJson = PracticalUtils.formatJsonStr(model.getParameterJson());	
+		if (model.getInterfaceInfo().getInterfaceId() == null) {
+			model.setInterfaceInfo((messageService.get(model.getMessageId())).getInterfaceInfo());
+		}
 		
-		if (returnJson == null) {
-			jsonMap.put("msg", "不是合法的json格式,请检查！");
-			jsonMap.put("returnCode", ReturnCodeConsts.INTERFACE_ILLEGAL_JSON_CODE);		
+		Set<Parameter> params = (interfaceInfoService.get(model.getInterfaceInfo().getInterfaceId())).getParameters();
+		String validateFalg = parseUtil.checkParameterValidity(new ArrayList<Parameter>(params), model.getParameterJson());
+		
+		if (!"true".equals(validateFalg)) {
+			jsonMap.put("msg", validateFalg);
+			jsonMap.put("returnCode", ReturnCodeConsts.MESSAGE_VALIDATE_ERROR);		
 			return SUCCESS;
 		}
 		
@@ -184,13 +141,32 @@ public class MessageAction extends BaseAction<Message>{
 			model.setUser(user);			
 		}
 		model.setLastModifyUser(user.getRealName());
-		model.setParameterJson(returnJson);
+		model.setParameterJson(parseUtil.messageFormatBeautify(model.getParameterJson()));
+		model.setComplexParameter(parseUtil.parseMessageToObject(model.getParameterJson(), new ArrayList<Parameter>(params)));
 		messageService.edit(model);
 		
 		jsonMap.put("returnCode", ReturnCodeConsts.SUCCESS_CODE);		
 		return SUCCESS;
 	}
 	
+	
+	
+	@Override
+	public String get() {
+		// TODO Auto-generated method stub
+		Message msg = messageService.get(id);
+		
+		MessageParse parseUtil = MessageParse.getParseInstance(msg.getMessageType());
+		
+		msg.setParameterJson(parseUtil.messageFormatBeautify(parseUtil.depacketizeMessageToString(msg.getComplexParameter(), null)));
+		
+		jsonMap.put("returnCode", ReturnCodeConsts.SUCCESS_CODE);
+		jsonMap.put("object", msg);
+		
+		return SUCCESS;
+	}
+
+
 	//测试用
 	public String test() {
 		/*jsonStr = "{\"ROOT\":{\"ReturnCode\":\"0000\",\"msg\":\"ok\",\"data\":[{\"userid\":11,\"username\":\"aa\"},{\"userid\":11,\"username\":\"aa\"}]}}";
@@ -199,7 +175,7 @@ public class MessageAction extends BaseAction<Message>{
 		MessageParse parse = MessageParse.getParseInstance("json");
 		ComplexParameter cp = complexParameterService.get(1);
 		System.out.println(cp.toString());
-		System.out.println("================S=" + parse.depacketizeMessageToString(cp));
+		System.out.println("================S=" + parse.depacketizeMessageToString(cp, null));
 		//complexParameterService.save(cp);
 		return SUCCESS;
 	}
@@ -208,8 +184,5 @@ public class MessageAction extends BaseAction<Message>{
 		this.interfaceId = interfaceId;
 	}
 	
-	public void setJsonStr(String jsonStr) {
-		this.jsonStr = jsonStr;
-	}
 	
 }
